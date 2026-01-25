@@ -1,17 +1,33 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ContactPage = ({ lang, textColor, onBack }) => {
-  const [formState, setFormState] = useState({ name: '', restaurant: '', location: '', phone: '', message: '' });
+  // Added separate state for the Form Data to allow clearing it
+  const [formData, setFormData] = useState({ name: '', restaurant: '', location: '', phone: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSent, setIsSent] = useState(false);
+  const [showToast, setShowToast] = useState(false); // Controls the "Tab" visibility
+
+  // Handle Input Changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    // Simulate API call
     await new Promise(r => setTimeout(r, 1500));
+    
     setIsSubmitting(false);
-    setIsSent(true);
+    setShowToast(true); // Show the tab
+    setFormData({ name: '', restaurant: '', location: '', phone: '' }); // Clear form
+
+    // Hide the tab automatically after 4 seconds
+    setTimeout(() => {
+      setShowToast(false);
+    }, 4000);
   };
 
   const content = {
@@ -23,17 +39,16 @@ const ContactPage = ({ lang, textColor, onBack }) => {
         restaurant: "Restaurant Name",
         location: "Location / City",
         phone: "Phone Number",
-        message: "Any specific requirements?",
         submit: "Send Message", 
         sending: "Sending...",
-        sent: "Message Sent Successfully!"
+        successTitle: "Message Sent!",
+        successDesc: "We will be in touch shortly."
       },
       contactInfo: {
         title: "Direct Contact",
         phone: "0774 499 5655",
         phoneHref: "tel:+9647744995655",
-        email: "partners@luxemenu.iq",
-        address: "Al-Mansour, Baghdad, Iraq"
+        email: "partners@luxemenu.iq"
       }
     },
     ar: {
@@ -44,17 +59,16 @@ const ContactPage = ({ lang, textColor, onBack }) => {
         restaurant: "اسم المطعم",
         location: "الموقع / المدينة",
         phone: "رقم الهاتف",
-        message: "أي متطلبات خاصة؟",
         submit: "إرسال الرسالة", 
         sending: "جاري الإرسال...",
-        sent: "تم إرسال رسالتك بنجاح!"
+        successTitle: "تم الإرسال بنجاح!",
+        successDesc: "سنتواصل معك قريباً."
       },
       contactInfo: {
         title: "تواصل مباشر",
         phone: "0774 499 5655",
         phoneHref: "tel:+9647744995655",
-        email: "partners@luxemenu.iq",
-        address: "المنصور، بغداد، العراق"
+        email: "partners@luxemenu.iq"
       }
     }
   };
@@ -67,7 +81,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen pt-20 pb-20 px-4 max-w-7xl mx-auto font-cairo"
+      className="min-h-screen pt-4 pb-20 px-4 max-w-7xl mx-auto font-cairo relative"
     >
       
       {/* Back Button */}
@@ -92,75 +106,73 @@ const ContactPage = ({ lang, textColor, onBack }) => {
             
             <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/20 rounded-full blur-[80px] pointer-events-none"></div>
 
-            {isSent ? (
-               <motion.div 
-                 initial={{ opacity: 0, scale: 0.9 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 className="h-[400px] flex flex-col items-center justify-center text-center"
-               >
-                 <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-[#3c3728] mb-6">
-                    <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                 </div>
-                 <h3 className="text-3xl font-bold mb-2">{t.labels.sent}</h3>
-               </motion.div>
-            ) : (
-              <form onSubmit={handleSubmit} className={`space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}>
-                
-                {/* Name */}
-                <div>
-                  <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.name}</label>
-                  <input 
-                    type="text" 
-                    required
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors"
-                    placeholder={isRTL ? "الاسم الكريم" : "John Doe"}
-                  />
-                </div>
+            <form onSubmit={handleSubmit} className={`space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}>
+              
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.name}</label>
+                <input 
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  type="text" 
+                  required
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors"
+                  placeholder={isRTL ? "الاسم الكريم" : "John Doe"}
+                />
+              </div>
 
-                {/* Restaurant */}
-                <div>
-                  <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.restaurant}</label>
-                  <input 
-                    type="text" 
-                    required
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors"
-                    placeholder={isRTL ? "مطعم بغداد" : "Baghdad Restaurant"}
-                  />
-                </div>
+              {/* Restaurant */}
+              <div>
+                <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.restaurant}</label>
+                <input 
+                  name="restaurant"
+                  value={formData.restaurant}
+                  onChange={handleChange}
+                  type="text" 
+                  required
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors"
+                  placeholder={isRTL ? "مطعم بغداد" : "Baghdad Restaurant"}
+                />
+              </div>
 
-                {/* Location */}
-                <div>
-                  <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.location}</label>
-                  <input 
-                    type="text" 
-                    required
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors"
-                    placeholder={isRTL ? "مثال: بغداد، المنصور" : "e.g. Baghdad, Mansour"}
-                  />
-                </div>
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.location}</label>
+                <input 
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  type="text" 
+                  required
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors"
+                  placeholder={isRTL ? "مثال: بغداد، المنصور" : "e.g. Baghdad, Mansour"}
+                />
+              </div>
 
-                {/* Phone */}
-                <div>
-                  <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.phone}</label>
-                  <input 
-                    type="tel" 
-                    required
-                    className={`w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors font-mono ${isRTL ? 'text-right' : ''}`}
-                    // UPDATED: Changed placeholder to a generic example
-                    placeholder="0770 123 4567"
-                    dir="ltr"
-                  />
-                </div>
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.phone}</label>
+                <input 
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  type="tel" 
+                  required
+                  className={`w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors font-mono ${isRTL ? 'text-right' : ''}`}
+                  placeholder="0770 123 4567"
+                  dir="ltr"
+                />
+              </div>
 
-                <button 
-                  disabled={isSubmitting}
-                  className="w-full bg-[#ebe3c6] text-[#3c3728] font-bold text-xl py-5 rounded-xl mt-4 hover:scale-[1.02] transition-transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? t.labels.sending : t.labels.submit}
-                </button>
+              <button 
+                disabled={isSubmitting}
+                className="w-full bg-[#ebe3c6] text-[#3c3728] font-bold text-xl py-5 rounded-xl mt-4 hover:scale-[1.02] transition-transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? t.labels.sending : t.labels.submit}
+              </button>
 
-              </form>
-            )}
+            </form>
           </div>
         </div>
 
@@ -180,11 +192,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
                </div>
                <div>
                   <div className="text-xs uppercase font-bold opacity-50 mb-1">{t.contactInfo.title}</div>
-                  <a 
-                    href={t.contactInfo.phoneHref} 
-                    className="text-xl font-bold dir-ltr hover:text-orange-600 transition-colors" 
-                    style={{ color: textColor }}
-                  >
+                  <a href={t.contactInfo.phoneHref} className="text-xl font-bold dir-ltr hover:text-orange-600 transition-colors" style={{ color: textColor }}>
                     {t.contactInfo.phone}
                   </a>
                </div>
@@ -201,8 +209,44 @@ const ContactPage = ({ lang, textColor, onBack }) => {
             </div>
           </div>
         </div>
-
       </div>
+
+      {/* --- SUCCESS TOAST / TAB --- */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed bottom-10 left-0 right-0 z-[60] pointer-events-none flex justify-center"
+          >
+            <div className={`bg-[#3c3728] text-[#ebe3c6] px-8 py-4 rounded-full shadow-2xl flex items-center gap-4 border border-[#ebe3c6]/20 pointer-events-auto ${isRTL ? 'flex-row-reverse' : ''}`}>
+              
+              {/* Green Success Icon */}
+              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shrink-0 text-[#3c3728]">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+              </div>
+
+              {/* Text */}
+              <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
+                <div className="font-bold text-lg">{t.labels.successTitle}</div>
+                <div className="text-sm opacity-80">{t.labels.successDesc}</div>
+              </div>
+
+              {/* Close Button (X) */}
+              <button 
+                onClick={() => setShowToast(false)}
+                className="opacity-50 hover:opacity-100 transition-opacity p-1"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </motion.div>
   );
 };

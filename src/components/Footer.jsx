@@ -2,29 +2,25 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const Footer = ({ lang }) => {
-  const bg = "#3c3728"; // Dark Olive
-  const text = "#ebe3c6"; // Cream
+  const bg = "#3c3728"; 
+  const text = "#ebe3c6"; 
   const year = new Date().getFullYear();
   const isRTL = lang === 'ar';
 
   return (
     <footer className="py-12 px-8 font-cairo" style={{ backgroundColor: bg, color: text }}>
       
-      {/* FIX 1: Added 'md:flex-row-reverse' for Arabic.
-        This moves Copyright to the Right and LineX to the Left side of the screen.
-      */}
       <div className={`max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 opacity-80 ${isRTL ? 'md:flex-row-reverse' : ''}`}>
         
         {/* Copyright Text */}
         <div className="text-sm font-light tracking-wide">
-          © {year} LUXE MENU. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
+          {/* UPDATED: Changed Name to SufraDigital */}
+          © {year} SufraDigital. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
         </div>
 
         {/* Branding Block */}
         <a 
             href="#" 
-            // FIX 2: Added 'flex-row-reverse' for Arabic.
-            // This ensures the [LineX] logo is on the LEFT of the [Arabic Text].
             className={`group flex items-center gap-2 transition-all hover:opacity-100 ${isRTL ? 'flex-row-reverse' : ''}`}
         >
           <span className="text-sm font-light uppercase tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">

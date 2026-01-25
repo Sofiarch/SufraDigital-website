@@ -3,7 +3,6 @@ import ElegantHero from './components/ElegantHero'
 import Footer from './components/Footer'
 import { Reveal } from './components/ui/Reveal';
 
-// Lazy Load components
 const ConceptGrid = lazy(() => import('./components/ConceptGrid'));
 const ScanDemo = lazy(() => import('./components/ScanDemo'));
 const ControlPanel = lazy(() => import('./components/ControlPanel'));
@@ -37,77 +36,87 @@ function App() {
       
       <main className="w-full relative">
 
-        {/* Navigation Bar */}
-        <nav className="p-8 flex justify-between items-center max-w-7xl mx-auto border-b" style={{ borderColor: `${textColor}40` }}>
-          <div 
-            className="text-2xl tracking-widest font-bold cursor-pointer" 
-            style={{ color: textColor }}
-            onClick={() => navigateTo('home')}
-          >
-            LUXE MENU
-          </div>
-          
-          <div className="flex gap-4">
-            <button 
-              onClick={toggleLang}
-              className="border px-6 py-1 rounded-full hover:bg-opacity-10 transition-all uppercase text-sm tracking-tighter"
-              style={{ borderColor: textColor, color: textColor }}
-            >
-              {lang === 'ar' ? 'English' : 'العربية'}
-            </button>
-          </div>
-        </nav>
+        {/* --- SIMPLE FIXED HEADER --- */}
+        {/* Full width, stuck to top, solid background matching the page */}
+        <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#3c3728]/10" style={{ backgroundColor: bgColor }}>
+            <div className="max-w-7xl mx-auto px-8 py-2 flex justify-between items-center">
+                
+                {/* Logo */}
+                <div 
+                    className="cursor-pointer" 
+                    onClick={() => navigateTo('home')}
+                >
+                    <img 
+                        src="/Logo.webp" 
+                        alt="SufraDigital Logo" 
+                        className="h-24 w-auto object-contain" 
+                    />
+                </div>
+
+                {/* Language Button */}
+                <button 
+                    onClick={toggleLang}
+                    className="border-2 px-8 py-2 rounded-full font-bold uppercase text-sm tracking-widest hover:bg-[#3c3728] hover:text-[#ebe3c6] transition-colors"
+                    style={{ borderColor: textColor, color: textColor }}
+                >
+                    {lang === 'ar' ? 'English' : 'العربية'}
+                </button>
+
+            </div>
+        </header>
 
         {/* --- PAGE CONTENT SWITCHER --- */}
-        {currentPage === 'home' ? (
-          <>
-            <ElegantHero 
-              lang={lang} 
-              textColor={textColor} 
-              onContact={() => navigateTo('contact')} 
-            />
-            
-            <Suspense fallback={<LoadingSpinner />}>
-              <Reveal>
-                <ConceptGrid lang={lang} textColor={textColor} />
-              </Reveal>
-              
-              <Reveal>
-                 <ScanDemo lang={lang} textColor={textColor} />
-              </Reveal>
-              
-              <Reveal>
-                 <ControlPanel lang={lang} textColor={textColor} />
-              </Reveal>
-              
-              <BenefitsScroll lang={lang} textColor={textColor} />
-            </Suspense>
-            
-            {/* CTA Section */}
-            <Reveal>
-              <div className="py-24 text-center">
-                <h2 className="text-3xl font-bold italic mb-8" style={{ color: textColor }}>
-                    {lang === 'ar' ? 'جاهز لتحديث مطعمك؟' : 'Ready to upgrade?'}
-                </h2>
-                <button 
-                  onClick={() => navigateTo('contact')}
-                  className="bg-[#3c3728] text-[#ebe3c6] px-12 py-5 rounded-full font-bold text-xl hover:scale-105 transition-transform shadow-2xl"
-                >
-                    {/* UPDATED: Just "Start Now" */}
-                    {lang === 'ar' ? 'ابدأ الآن' : 'Start Now'}
-                </button>
-              </div>
-            </Reveal>
-          </>
-        ) : (
-          <Suspense fallback={<LoadingSpinner />}>
-             <ContactPage 
+        {/* Added 'pt-32' to the main content wrapper so the fixed header doesn't cover the top of the Hero */}
+        <div className="pt-32">
+          {currentPage === 'home' ? (
+            <>
+              <ElegantHero 
                 lang={lang} 
                 textColor={textColor} 
-                onBack={() => navigateTo('home')} 
-             />
-          </Suspense>
-        )}
+                onContact={() => navigateTo('contact')} 
+              />
+              
+              <Suspense fallback={<LoadingSpinner />}>
+                <Reveal>
+                  <ConceptGrid lang={lang} textColor={textColor} />
+                </Reveal>
+                
+                <Reveal>
+                  <ScanDemo lang={lang} textColor={textColor} />
+                </Reveal>
+                
+                <Reveal>
+                  <ControlPanel lang={lang} textColor={textColor} />
+                </Reveal>
+                
+                <BenefitsScroll lang={lang} textColor={textColor} />
+              </Suspense>
+              
+              {/* CTA Section */}
+              <Reveal>
+                <div className="py-24 text-center">
+                  <h2 className="text-3xl font-bold italic mb-8" style={{ color: textColor }}>
+                      {lang === 'ar' ? 'جاهز لتحديث مطعمك؟' : 'Ready to upgrade?'}
+                  </h2>
+                  <button 
+                    onClick={() => navigateTo('contact')}
+                    className="bg-[#3c3728] text-[#ebe3c6] px-12 py-5 rounded-full font-bold text-xl hover:scale-105 transition-transform shadow-2xl"
+                  >
+                      {lang === 'ar' ? 'ابدأ الآن' : 'Start Now'}
+                  </button>
+                </div>
+              </Reveal>
+            </>
+          ) : (
+            <Suspense fallback={<LoadingSpinner />}>
+              <ContactPage 
+                  lang={lang} 
+                  textColor={textColor} 
+                  onBack={() => navigateTo('home')} 
+              />
+            </Suspense>
+          )}
+        </div>
 
         <Footer lang={lang} />
 
