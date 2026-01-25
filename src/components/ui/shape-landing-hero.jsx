@@ -60,11 +60,12 @@ function ElegantShape({
 }
 
 function HeroGeometric({
-  badge = "Design",
+  // Removed badge prop default
   title1 = "Elevate",
   title2 = "Your Brand",
   desc = "Your description goes here.",
   cta = "Get Started",
+  onContact,
 }) {
   const fadeUpVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -116,18 +117,7 @@ function HeroGeometric({
       <div className="relative z-10 container mx-auto px-4 md:px-6 pt-10">
         <div className="max-w-3xl mx-auto text-center">
           
-          {/* Badge */}
-          <motion.div
-            custom={0}
-            variants={fadeUpVariants}
-            initial="hidden"
-            animate="visible"
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3c3728]/[0.05] border border-[#3c3728]/[0.1] mb-8 md:mb-12"
-          >
-            <span className="text-sm text-[#3c3728] tracking-wide uppercase font-bold">
-              {badge}
-            </span>
-          </motion.div>
+          {/* Badge Removed Here */}
 
           {/* Title */}
           <motion.div
@@ -136,10 +126,8 @@ function HeroGeometric({
             initial="hidden"
             animate="visible"
           >
-            {/* FIX: Removed 'tracking-tight' and added 'leading-normal' for Arabic height */}
             <h1 className="text-5xl md:text-8xl font-bold mb-6 md:mb-8 leading-normal py-4 px-2">
               
-              {/* FIX: Added 'pb-6' (Padding Bottom) to give space for Arabic descenders */}
               <span className="bg-clip-text text-transparent bg-gradient-to-b from-[#3c3728] to-[#3c3728]/80 italic inline-block pr-4 pb-4">
                 {title1}
               </span>
@@ -165,6 +153,7 @@ function HeroGeometric({
             </p>
 
             <button 
+              onClick={onContact} 
               className="px-12 py-4 text-lg border-2 transition-all duration-300 font-bold hover:bg-[#3c3728] hover:text-[#ebe3c6] text-[#3c3728] border-[#3c3728]"
             >
               {cta}

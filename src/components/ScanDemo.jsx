@@ -56,9 +56,9 @@ const ScanDemo = ({ lang, textColor }) => {
   };
 
   const foodItems = [
-    { name: "Truffle Pasta", price: "25,000 IQD", img: "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=150&q=80" },
-    { name: "Wagyu Burger", price: "18,000 IQD", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=150&q=80" },
-    { name: "Berry Mojito", price: "8,000 IQD", img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=150&q=80" }
+    { name: "Cheese Pasta", price: "10,000 IQD", img: "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=150&q=80" },
+    { name: "Wagyu Burger", price: "6,000 IQD", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=150&q=80" },
+    { name: "Berry Mojito", price: "4,000 IQD", img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=150&q=80" }
   ];
 
   return (
