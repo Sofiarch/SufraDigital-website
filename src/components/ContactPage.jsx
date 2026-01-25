@@ -31,6 +31,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
       contactInfo: {
         title: "Direct Contact",
         phone: "0774 499 5655",
+        phoneHref: "tel:+9647744995655",
         email: "partners@luxemenu.iq",
         address: "Al-Mansour, Baghdad, Iraq"
       }
@@ -51,6 +52,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
       contactInfo: {
         title: "تواصل مباشر",
         phone: "0774 499 5655",
+        phoneHref: "tel:+9647744995655",
         email: "partners@luxemenu.iq",
         address: "المنصور، بغداد، العراق"
       }
@@ -68,7 +70,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
       className="min-h-screen pt-20 pb-20 px-4 max-w-7xl mx-auto font-cairo"
     >
       
-      {/* Back Button - FIXED: Always on the Right */}
+      {/* Back Button */}
       <div className="flex justify-end mb-12">
         <button 
             onClick={onBack}
@@ -82,7 +84,6 @@ const ContactPage = ({ lang, textColor, onBack }) => {
         </button>
       </div>
 
-      {/* LAYOUT FIXED: Form Left, Text Right (Static) */}
       <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
         
         {/* --- LEFT COLUMN: FORM --- */}
@@ -145,12 +146,12 @@ const ContactPage = ({ lang, textColor, onBack }) => {
                     type="tel" 
                     required
                     className={`w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors font-mono ${isRTL ? 'text-right' : ''}`}
-                    placeholder="0774 499 5655"
+                    // UPDATED: Changed placeholder to a generic example
+                    placeholder="0770 123 4567"
                     dir="ltr"
                   />
                 </div>
 
-                {/* Submit Button */}
                 <button 
                   disabled={isSubmitting}
                   className="w-full bg-[#ebe3c6] text-[#3c3728] font-bold text-xl py-5 rounded-xl mt-4 hover:scale-[1.02] transition-transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
@@ -163,7 +164,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
           </div>
         </div>
 
-        {/* --- RIGHT COLUMN: INFO & TEXT (Static) --- */}
+        {/* --- RIGHT COLUMN: INFO & TEXT --- */}
         <div className={`w-full lg:w-1/2 order-1 lg:order-2 ${isRTL ? 'text-right' : 'text-left'}`}>
           <h1 className="text-5xl md:text-6xl font-bold italic mb-8 leading-tight" style={{ color: textColor }}>
             {t.title}
@@ -172,16 +173,20 @@ const ContactPage = ({ lang, textColor, onBack }) => {
             {t.subtitle}
           </p>
 
-          {/* Contact Details Cards */}
           <div className="space-y-6">
-            {/* FIXED: Removed flex-row-reverse logic so icons stay stable */}
             <div className={`p-6 bg-white/50 border border-[#3c3728]/10 rounded-2xl flex items-center gap-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
                <div className="w-12 h-12 bg-[#3c3728] text-[#ebe3c6] rounded-full flex items-center justify-center shrink-0">
                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                </div>
                <div>
                   <div className="text-xs uppercase font-bold opacity-50 mb-1">{t.contactInfo.title}</div>
-                  <div className="text-xl font-bold dir-ltr" style={{ color: textColor }}>{t.contactInfo.phone}</div>
+                  <a 
+                    href={t.contactInfo.phoneHref} 
+                    className="text-xl font-bold dir-ltr hover:text-orange-600 transition-colors" 
+                    style={{ color: textColor }}
+                  >
+                    {t.contactInfo.phone}
+                  </a>
                </div>
             </div>
 
