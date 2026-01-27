@@ -2,6 +2,8 @@ import { useState, Suspense, lazy } from 'react'
 import ElegantHero from './components/ElegantHero'
 import Footer from './components/Footer'
 import { Reveal } from './components/ui/Reveal';
+// 1. IMPORT HELMET
+import { Helmet } from 'react-helmet-async';
 
 const ConceptGrid = lazy(() => import('./components/ConceptGrid'));
 const ScanDemo = lazy(() => import('./components/ScanDemo'));
@@ -35,6 +37,20 @@ function App() {
     // REVERTED: Removed dir={...} to fix the layout issues
     <div className="font-cairo min-h-screen" style={{ backgroundColor: bgColor }}>
       
+      {/* 2. SEO METADATA BLOCK */}
+      <Helmet>
+        <title>Sufra Digital | Smart QR Menu Systems for Restaurants</title>
+        <meta name="description" content="Transform your restaurant with Sufra Digital. The ultimate contactless ordering system, digital menu, and control panel for modern dining." />
+        <link rel="canonical" href="https://sufradigital.com/" />
+        
+        {/* Open Graph / Social Media */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Sufra Digital | Smart QR Menu Systems" />
+        <meta property="og:description" content="Transform your restaurant with Sufra Digital. The ultimate contactless ordering system." />
+        <meta property="og:url" content="https://sufradigital.com/" />
+        <meta property="og:image" content="https://sufradigital.com/Logo.webp" />
+      </Helmet>
+
       <main className="w-full relative">
 
         <header className="absolute top-0 left-0 right-0 z-50 border-b border-[#3c3728]/10" style={{ backgroundColor: bgColor }}>
