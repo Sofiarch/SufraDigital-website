@@ -12,8 +12,9 @@ const BenefitsScroll = ({ lang, textColor }) => {
         img: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80"
       },
       {
-        title: "Showcase Food with Video",
-        desc: "Static images are good, but video is better. Autoplay videos of your sizzling dishes make guests hungry instantly.",
+        // UPDATED: Changed from Video to Photos
+        title: "Showcase Every Detail",
+        desc: "Guests eat with their eyes first. Display unlimited high-resolution photos for every dish to boost appetite and orders.",
         img: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80"
       },
       {
@@ -30,23 +31,23 @@ const BenefitsScroll = ({ lang, textColor }) => {
     ar: [
       {
         title: "مصمم لزيادة المبيعات",
-        // FIX: Added '&rlm;' after the span to force the period (.) to stay on the left.
-        desc: <>يقوم المنيو الذكي بإبراز أفضل أطباقك وإغراء الضيوف بصور لا تقاوم، مما يثبت زيادة قيمة الطلب بنسبة <span dir="ltr" className="inline-block">30%</span>&rlm;.</>,
+        desc: <>يقوم المنيو الذكي بإبراز أفضل أطباقك وإغراء الضيوف بصور لا تقاوم، مما يثبت زيادة قيمة الطلب بنسبة <span dir="ltr" className="inline-block">30%</span>&rlm;</>,
         img: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80"
       },
       {
-        title: "اعرض طعامك بالفيديو",
-        desc: "الصور الثابتة جيدة، لكن الفيديو أفضل. فيديوهات التشغيل التلقائي لأطباقك تجعل الضيوف يشعرون بالجوع فوراً.",
+        // UPDATED: Changed from Video to Photos (Arabic)
+        title: "اعرض كل التفاصيل",
+        desc: "العين تأكل قبل الفم. اعرض صوراً عالية الدقة وغير محدودة لكل طبق لفتح شهية ضيوفك وزيادة الطلبات",
         img: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80"
       },
       {
         title: "أفضل قيمة مقابل سعر",
-        desc: "تخلص من تكاليف الأجهزة الباهظة. احصل على نظام رقمي متكامل وفاخر يعمل على أي جهاز باشتراك شهري بسيط.",
+        desc: "تخلص من تكاليف الأجهزة الباهظة. احصل على نظام رقمي متكامل وفاخر يعمل على أي جهاز باشتراك شهري بسيط",
         img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80"
       },
       {
         title: "تحكم كامل بالتصميم",
-        desc: "لا ترضى بالمظهر التقليدي. غيّر الألوان، الخطوط، والتخطيطات لتتناسب تماماً مع هوية وعلامة مطعمك التجارية.",
+        desc: "لا ترضى بالمظهر التقليدي. غيّر الألوان، الخطوط، والتخطيطات لتتناسب تماماً مع هوية وعلامة مطعمك التجارية",
         img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80"
       }
     ]

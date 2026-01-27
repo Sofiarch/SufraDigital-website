@@ -32,18 +32,14 @@ function App() {
   };
 
   return (
+    // REVERTED: Removed dir={...} to fix the layout issues
     <div className="font-cairo min-h-screen" style={{ backgroundColor: bgColor }}>
       
       <main className="w-full relative">
 
-        {/* --- HEADER --- */}
-        {/* UPDATED: Changed 'fixed' to 'absolute'. 
-            It now stays at the very top of the website and won't follow you down. 
-        */}
         <header className="absolute top-0 left-0 right-0 z-50 border-b border-[#3c3728]/10" style={{ backgroundColor: bgColor }}>
             <div className="max-w-7xl mx-auto px-8 py-2 flex justify-between items-center">
                 
-                {/* Logo */}
                 <div 
                     className="cursor-pointer" 
                     onClick={() => navigateTo('home')}
@@ -55,7 +51,6 @@ function App() {
                     />
                 </div>
 
-                {/* Language Button */}
                 <button 
                     onClick={toggleLang}
                     className="border-2 px-8 py-2 rounded-full font-bold uppercase text-sm tracking-widest hover:bg-[#3c3728] hover:text-[#ebe3c6] transition-colors"
@@ -67,11 +62,6 @@ function App() {
             </div>
         </header>
 
-        {/* --- PAGE CONTENT SWITCHER --- */}
-        {/* UPDATED: Removed 'pt-32'. We don't need extra padding anymore since the header isn't fixed. 
-            I kept 'pt-32' effectively as 'pt-28' inside the Hero or just let the Hero start naturally.
-            However, to ensure the Hero content doesn't go UNDER the absolute header, we add a smaller padding like 'pt-28'.
-        */}
         <div className="pt-28"> 
           {currentPage === 'home' ? (
             <>
@@ -97,7 +87,6 @@ function App() {
                 <BenefitsScroll lang={lang} textColor={textColor} />
               </Suspense>
               
-              {/* CTA Section */}
               <Reveal>
                 <div className="py-24 text-center">
                   <h2 className="text-3xl font-bold italic mb-8" style={{ color: textColor }}>

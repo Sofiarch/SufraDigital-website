@@ -23,9 +23,11 @@ const ScanDemo = ({ lang, textColor }) => {
     ar: {
       title: "كيف يعمل؟",
       step1: "١. امسح الرمز",
-      desc1: "يقوم الضيوف بتوجيه الكاميرا نحو الرمز الموجود على الطاولة. لا حاجة لتحميل أي تطبيق.",
+      // UPDATED: Removed trailing dot
+      desc1: "يقوم الضيوف بتوجيه الكاميرا نحو الرمز الموجود على الطاولة. لا حاجة لتحميل أي تطبيق",
       step2: "٢. تصفح واطلب",
-      desc2: "يظهر المنيو الرقمي فوراً. يختار الضيوف وجباتهم ويرسلون الطلب.",
+      // UPDATED: Removed trailing dot
+      desc2: "يظهر المنيو الرقمي فوراً. يختار الضيوف وجباتهم ويرسلون الطلب",
       menuTitle: "الأطباق المميزة"
     }
   };
@@ -71,10 +73,6 @@ const ScanDemo = ({ lang, textColor }) => {
         </h2>
       </div>
 
-      {/* LAYOUT CHANGE: 
-        'md:flex-row-reverse' puts the first child (Step 1) on the RIGHT 
-        and the last child (Step 2) on the LEFT.
-      */}
       <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-12 md:gap-24">
         
         {/* --- STEP 1 (Appears on RIGHT) --- */}
@@ -91,7 +89,6 @@ const ScanDemo = ({ lang, textColor }) => {
 
 
         {/* --- CENTER: PHONE (Shorter Height) --- */}
-        {/* Changed h-[580px] to h-[500px] */}
         <div 
           className="relative w-[260px] h-[500px] rounded-[40px] border-[8px] bg-white overflow-hidden shadow-2xl ring-1 ring-black/10 shrink-0"
           style={{ borderColor: textColor }}

@@ -42,7 +42,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
     } catch (error) {
       console.error('FAILED...', error);
       setIsSubmitting(false);
-      alert(lang === 'ar' ? 'حدث خطأ أثناء الإرسال.' : 'Failed to send message.');
+      alert(lang === 'ar' ? 'حدث خطأ أثناء الإرسال' : 'Failed to send message.');
     }
   };
 
@@ -69,7 +69,8 @@ const ContactPage = ({ lang, textColor, onBack }) => {
     },
     ar: {
       title: "انضم إلى المستقبل",
-      subtitle: "هل أنت مستعد للارتقاء بتجربة ضيوفك؟ املأ الاستمارة وسنتواصل معك خلال ٢٤ ساعة.",
+      // UPDATED: Removed dot
+      subtitle: "هل أنت مستعد للارتقاء بتجربة ضيوفك؟ املأ الاستمارة وسنتواصل معك خلال ٢٤ ساعة",
       labels: {
         name: "الاسم الكامل",
         restaurant: "اسم المطعم",
@@ -78,7 +79,8 @@ const ContactPage = ({ lang, textColor, onBack }) => {
         submit: "إرسال الرسالة", 
         sending: "جاري الإرسال...",
         successTitle: "تم الإرسال بنجاح!",
-        successDesc: "سنتواصل معك قريباً."
+        // UPDATED: Removed dot
+        successDesc: "سنتواصل معك قريباً"
       },
       contactInfo: {
         title: "تواصل مباشر",
@@ -91,9 +93,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
 
   const t = content[lang];
   const isRTL = lang === 'ar';
-
-  // Common input class string to avoid repetition
-  // UPDATED: Added ${isRTL ? 'text-right' : 'text-left'} here to force alignment on inputs
+  
   const inputClass = `w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors ${isRTL ? 'text-right' : 'text-left'}`;
 
   return (
@@ -127,65 +127,24 @@ const ContactPage = ({ lang, textColor, onBack }) => {
 
             <form onSubmit={handleSubmit} className={`space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}>
               
-              {/* Name */}
               <div>
                 <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.name}</label>
-                <input 
-                  name="name" 
-                  value={formData.name} 
-                  onChange={handleChange} 
-                  type="text" 
-                  required 
-                  className={inputClass} // Uses the fixed alignment class
-                  // UPDATED: Placeholder changed from John Doe to Ali Ahmed
-                  placeholder={isRTL ? "الاسم الكريم" : "e.g. Ali Ahmed"} 
-                />
+                <input name="name" value={formData.name} onChange={handleChange} type="text" required className={inputClass} placeholder={isRTL ? "الاسم الكريم" : "e.g. Ali Ahmed"} />
               </div>
 
-              {/* Restaurant */}
               <div>
                 <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.restaurant}</label>
-                <input 
-                  name="restaurant" 
-                  value={formData.restaurant} 
-                  onChange={handleChange} 
-                  type="text" 
-                  required 
-                  className={inputClass} // Uses the fixed alignment class
-                  placeholder={isRTL ? "مطعم بغداد" : "Baghdad Restaurant"} 
-                />
+                <input name="restaurant" value={formData.restaurant} onChange={handleChange} type="text" required className={inputClass} placeholder={isRTL ? "مطعم بغداد" : "Baghdad Restaurant"} />
               </div>
 
-              {/* Location */}
               <div>
                 <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.location}</label>
-                <input 
-                  name="location" 
-                  value={formData.location} 
-                  onChange={handleChange} 
-                  type="text" 
-                  required 
-                  className={inputClass} // Uses the fixed alignment class
-                  placeholder={isRTL ? "مثال: بغداد، المنصور" : "e.g. Baghdad, Mansour"} 
-                />
+                <input name="location" value={formData.location} onChange={handleChange} type="text" required className={inputClass} placeholder={isRTL ? "مثال: بغداد، المنصور" : "e.g. Baghdad, Mansour"} />
               </div>
 
-              {/* Phone */}
               <div>
                 <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.phone}</label>
-                <input 
-                  name="phone" 
-                  value={formData.phone} 
-                  onChange={handleChange} 
-                  type="tel" 
-                  required 
-                  // Phone is specific: Text is usually LTR, but we align it based on language if you prefer, 
-                  // BUT usually phone numbers look best aligned Left (LTR). 
-                  // I kept 'text-right' for Arabic so the placeholder moves to the right if you want that consistency.
-                  className={`w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors font-mono ${isRTL ? 'text-right' : 'text-left'}`} 
-                  placeholder="0770 123 4567" 
-                  dir="ltr" 
-                />
+                <input name="phone" value={formData.phone} onChange={handleChange} type="tel" required className={`w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors font-mono ${isRTL ? 'text-right' : 'text-left'}`} placeholder="0770 123 4567" dir="ltr" />
               </div>
 
               <button disabled={isSubmitting} className="w-full bg-[#ebe3c6] text-[#3c3728] font-bold text-xl py-5 rounded-xl mt-4 hover:scale-[1.02] transition-transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
@@ -207,15 +166,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
                </div>
                <div>
                   <div className="text-xs uppercase font-bold opacity-50 mb-1">{t.contactInfo.title}</div>
-                  <a 
-                    href={t.contactInfo.phoneHref} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-xl font-bold dir-ltr hover:text-green-600 transition-colors" 
-                    style={{ color: textColor }}
-                  >
-                    {t.contactInfo.phone}
-                  </a>
+                  <a href={t.contactInfo.phoneHref} target="_blank" rel="noopener noreferrer" className="text-xl font-bold dir-ltr hover:text-green-600 transition-colors" style={{ color: textColor }}>{t.contactInfo.phone}</a>
                </div>
             </div>
 

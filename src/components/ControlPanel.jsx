@@ -60,11 +60,13 @@ const ControlPanel = ({ lang, textColor }) => {
     },
     ar: {
       title: "إدارة سهلة وفورية",
-      subtitle: "حدث المنيو الخاص بك في ثوانٍ، وليس أيام.",
+      // UPDATED: Removed trailing dot
+      subtitle: "حدث المنيو الخاص بك في ثوانٍ، وليس أيام",
       features: [
-        { title: "تحديثات فورية", desc: "غيّر الأسعار أو التفاصيل وستظهر التعديلات فوراً على هواتف جميع الضيوف." },
-        { title: "التحكم بالمخزون", desc: "نفذ الطبق اليومي؟ قم بإخفائه من القائمة بضغطة زر واحدة." },
-        { title: "محرر مرئي", desc: "اسحب وأفلت صوراً عالية الدقة ليظهر المنيو بنفس روعة طعم أطباقك." },
+        // UPDATED: Removed trailing dots from all descriptions
+        { title: "تحديثات فورية", desc: "غيّر الأسعار أو التفاصيل وستظهر التعديلات فوراً على هواتف جميع الضيوف" },
+        { title: "التحكم بالمخزون", desc: "نفذ الطبق اليومي؟ قم بإخفائه من القائمة بضغطة زر واحدة" },
+        { title: "محرر مرئي", desc: "اسحب وأفلت صوراً عالية الدقة ليظهر المنيو بنفس روعة طعم أطباقك" },
       ],
       ui: {
         labelName: "اسم الوجبة",
@@ -83,7 +85,7 @@ const ControlPanel = ({ lang, textColor }) => {
   const t = content[lang];
   const panelBg = "#3c3728";
   const panelText = "#ebe3c6";
-  const inputBg = "rgba(0,0,0,0.2)"; // Darker background for inputs
+  const inputBg = "rgba(0,0,0,0.2)"; 
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-24 overflow-hidden">
