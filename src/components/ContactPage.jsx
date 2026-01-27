@@ -63,9 +63,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
       contactInfo: {
         title: "Direct Contact",
         phone: "0774 499 5655",
-        // UPDATED: WhatsApp Link
         phoneHref: "https://wa.me/9647744995655",
-        // UPDATED: New Email
         email: "linex.website@gmail.com"
       }
     },
@@ -85,9 +83,7 @@ const ContactPage = ({ lang, textColor, onBack }) => {
       contactInfo: {
         title: "تواصل مباشر",
         phone: "0774 499 5655",
-        // UPDATED: WhatsApp Link
         phoneHref: "https://wa.me/9647744995655",
-        // UPDATED: New Email
         email: "linex.website@gmail.com"
       }
     }
@@ -95,6 +91,10 @@ const ContactPage = ({ lang, textColor, onBack }) => {
 
   const t = content[lang];
   const isRTL = lang === 'ar';
+
+  // Common input class string to avoid repetition
+  // UPDATED: Added ${isRTL ? 'text-right' : 'text-left'} here to force alignment on inputs
+  const inputClass = `w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors ${isRTL ? 'text-right' : 'text-left'}`;
 
   return (
     <motion.div 
@@ -127,24 +127,65 @@ const ContactPage = ({ lang, textColor, onBack }) => {
 
             <form onSubmit={handleSubmit} className={`space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}>
               
+              {/* Name */}
               <div>
                 <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.name}</label>
-                <input name="name" value={formData.name} onChange={handleChange} type="text" required className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors" placeholder={isRTL ? "الاسم الكريم" : "John Doe"} />
+                <input 
+                  name="name" 
+                  value={formData.name} 
+                  onChange={handleChange} 
+                  type="text" 
+                  required 
+                  className={inputClass} // Uses the fixed alignment class
+                  // UPDATED: Placeholder changed from John Doe to Ali Ahmed
+                  placeholder={isRTL ? "الاسم الكريم" : "e.g. Ali Ahmed"} 
+                />
               </div>
 
+              {/* Restaurant */}
               <div>
                 <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.restaurant}</label>
-                <input name="restaurant" value={formData.restaurant} onChange={handleChange} type="text" required className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors" placeholder={isRTL ? "مطعم بغداد" : "Baghdad Restaurant"} />
+                <input 
+                  name="restaurant" 
+                  value={formData.restaurant} 
+                  onChange={handleChange} 
+                  type="text" 
+                  required 
+                  className={inputClass} // Uses the fixed alignment class
+                  placeholder={isRTL ? "مطعم بغداد" : "Baghdad Restaurant"} 
+                />
               </div>
 
+              {/* Location */}
               <div>
                 <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.location}</label>
-                <input name="location" value={formData.location} onChange={handleChange} type="text" required className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors" placeholder={isRTL ? "مثال: بغداد، المنصور" : "e.g. Baghdad, Mansour"} />
+                <input 
+                  name="location" 
+                  value={formData.location} 
+                  onChange={handleChange} 
+                  type="text" 
+                  required 
+                  className={inputClass} // Uses the fixed alignment class
+                  placeholder={isRTL ? "مثال: بغداد، المنصور" : "e.g. Baghdad, Mansour"} 
+                />
               </div>
 
+              {/* Phone */}
               <div>
                 <label className="block text-sm font-bold uppercase tracking-wider opacity-60 mb-2">{t.labels.phone}</label>
-                <input name="phone" value={formData.phone} onChange={handleChange} type="tel" required className={`w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors font-mono ${isRTL ? 'text-right' : ''}`} placeholder="0770 123 4567" dir="ltr" />
+                <input 
+                  name="phone" 
+                  value={formData.phone} 
+                  onChange={handleChange} 
+                  type="tel" 
+                  required 
+                  // Phone is specific: Text is usually LTR, but we align it based on language if you prefer, 
+                  // BUT usually phone numbers look best aligned Left (LTR). 
+                  // I kept 'text-right' for Arabic so the placeholder moves to the right if you want that consistency.
+                  className={`w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors font-mono ${isRTL ? 'text-right' : 'text-left'}`} 
+                  placeholder="0770 123 4567" 
+                  dir="ltr" 
+                />
               </div>
 
               <button disabled={isSubmitting} className="w-full bg-[#ebe3c6] text-[#3c3728] font-bold text-xl py-5 rounded-xl mt-4 hover:scale-[1.02] transition-transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
@@ -162,13 +203,10 @@ const ContactPage = ({ lang, textColor, onBack }) => {
           <div className="space-y-6">
             <div className={`p-6 bg-white/50 border border-[#3c3728]/10 rounded-2xl flex items-center gap-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
                <div className="w-12 h-12 bg-[#3c3728] text-[#ebe3c6] rounded-full flex items-center justify-center shrink-0">
-                 {/* WhatsApp / Phone Icon */}
                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                </div>
                <div>
                   <div className="text-xs uppercase font-bold opacity-50 mb-1">{t.contactInfo.title}</div>
-                  
-                  {/* UPDATED: Link uses phoneHref (WhatsApp) and opens in new tab */}
                   <a 
                     href={t.contactInfo.phoneHref} 
                     target="_blank" 
@@ -183,12 +221,10 @@ const ContactPage = ({ lang, textColor, onBack }) => {
 
             <div className={`p-6 bg-white/50 border border-[#3c3728]/10 rounded-2xl flex items-center gap-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
                <div className="w-12 h-12 bg-[#3c3728] text-[#ebe3c6] rounded-full flex items-center justify-center shrink-0">
-                 {/* Email Icon */}
                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                </div>
                <div>
                   <div className="text-xs uppercase font-bold opacity-50 mb-1">Email</div>
-                  {/* UPDATED: Email Address */}
                   <div className="text-xl font-bold" style={{ color: textColor }}>{t.contactInfo.email}</div>
                </div>
             </div>
