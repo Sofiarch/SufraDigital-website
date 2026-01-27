@@ -14,13 +14,15 @@ const Footer = ({ lang }) => {
         
         {/* Copyright Text */}
         <div className="text-sm font-light tracking-wide">
-          {/* UPDATED: Changed Name to SufraDigital */}
           © {year} SufraDigital. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
         </div>
 
         {/* Branding Block */}
         <a 
-            href="#" 
+            // UPDATED: Added link to LineX website
+            href="https://linex.website" 
+            target="_blank" 
+            rel="noopener noreferrer"
             className={`group flex items-center gap-2 transition-all hover:opacity-100 ${isRTL ? 'flex-row-reverse' : ''}`}
         >
           <span className="text-sm font-light uppercase tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">
@@ -28,9 +30,7 @@ const Footer = ({ lang }) => {
           </span>
           
           <div className="flex items-center gap-1 font-bold text-lg relative">
-            <span className="text-orange-500">{`<`}</span>
             <span className="tracking-tighter">LineX</span>
-            <span className="text-orange-500">{`/>`}</span>
             
             <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
           </div>
