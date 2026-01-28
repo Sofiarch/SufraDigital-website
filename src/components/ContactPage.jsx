@@ -93,7 +93,9 @@ const ContactPage = ({ lang, textColor, onBack }) => {
 
   const t = content[lang];
   const isRTL = lang === 'ar';
-  
+  // mailto link so clicking opens the user's native mail app with a subject
+  const mailtoHref = `mailto:${t.contactInfo.email}?subject=${encodeURIComponent(lang === 'ar' ? 'طلب معلومات من Sufra Digital' : 'Inquiry from Sufra Digital')}`;
+
   const inputClass = `w-full bg-white/5 border border-white/10 rounded-xl p-4 text-lg focus:outline-none focus:border-orange-500 transition-colors ${isRTL ? 'text-right' : 'text-left'}`;
 
   return (
@@ -176,7 +178,14 @@ const ContactPage = ({ lang, textColor, onBack }) => {
                </div>
                <div>
                   <div className="text-xs uppercase font-bold opacity-50 mb-1">Email</div>
-                  <div className="text-xl font-bold" style={{ color: textColor }}>{t.contactInfo.email}</div>
+                  <a
+                    href={mailtoHref}
+                    className="text-xl font-bold hover:underline"
+                    style={{ color: textColor }}
+                    aria-label={lang === 'ar' ? 'أرسل بريدًا إلكترونيًا' : 'Send email'}
+                  >
+                    {t.contactInfo.email}
+                  </a>
                </div>
             </div>
           </div>

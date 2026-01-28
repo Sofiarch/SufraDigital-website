@@ -45,8 +45,8 @@ const LandingPage = () => {
                 </div>
                 <button 
                     onClick={toggleLang}
-                    className="border-2 px-8 py-2 rounded-full font-bold uppercase text-sm tracking-widest hover:bg-[#3c3728] hover:text-[#ebe3c6] transition-colors"
-                    style={{ borderColor: textColor, color: textColor }}
+                    className="border-2 px-8 py-2 rounded-full font-bold uppercase text-sm tracking-widest text-[#3c3728] hover:bg-[#3c3728] hover:text-[#ebe3c6] transition-colors"
+                    style={{ borderColor: textColor }}
                 >
                     {lang === 'ar' ? 'English' : 'العربية'}
                 </button>
