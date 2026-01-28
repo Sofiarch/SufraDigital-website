@@ -1,24 +1,36 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
+import { supabase } from '../../lib/supabase'; // Import Supabase
 import BlurImage from './BlurImage';
 
 const MenuCard = ({ item, currency = "IQD", isDark = false, accentColor, onClick }) => {
   const rawPrice = String(item.price).replace(/[^0-9.]/g, '');
   const formattedPrice = isNaN(Number(rawPrice)) ? "0" : Number(rawPrice).toLocaleString();
 
-  // Favorites Logic
+  // 1. Initialize State from LocalStorage
   const [isLiked, setIsLiked] = useState(() => {
     const saved = localStorage.getItem('favorites');
     return saved ? JSON.parse(saved).includes(item.id) : false;
   });
 
-  const toggleLike = (e) => {
-    e.stopPropagation();
+  // 2. Handle the Click
+  const toggleLike = async (e) => {
+    e.stopPropagation(); // Stop card click
+    
+    // Prevent double-liking from same device
+    if (isLiked) return; 
+
+    // A. Optimistic UI Update (Make it red immediately)
+    setIsLiked(true);
+    
+    // B. Save to LocalStorage (So it remembers they liked it)
     const saved = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const newSaved = isLiked ? saved.filter(id => id !== item.id) : [...saved, item.id];
+    const newSaved = [...saved, item.id];
     localStorage.setItem('favorites', JSON.stringify(newSaved));
-    setIsLiked(!isLiked);
+
+    // C. Send +1 to Database
+    await supabase.rpc('increment_likes', { row_id: item.id });
   };
 
   const cardVariants = {
@@ -29,8 +41,13 @@ const MenuCard = ({ item, currency = "IQD", isDark = false, accentColor, onClick
   return (
     <motion.div variants={cardVariants} layout onClick={() => onClick(item)} whileTap={{ scale: 0.96 }} whileHover={{ y: -4 }} className="w-full cursor-pointer group select-none relative">
       <div className="w-full h-[220px] rounded-[24px] overflow-hidden mb-4 relative shadow-lg bg-gray-100">
-        <button onClick={toggleLike} className="absolute top-3 right-3 z-20 p-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 shadow-sm active:scale-90 transition-all hover:bg-black/40">
-           <Heart size={18} className={isLiked ? "fill-red-500 text-red-500" : "text-white"} />
+        
+        {/* Like Button */}
+        <button 
+          onClick={toggleLike} 
+          className={`absolute top-3 right-3 z-20 p-2 rounded-full backdrop-blur-md border shadow-sm active:scale-90 transition-all hover:bg-black/40 ${isLiked ? 'bg-red-500/20 border-red-500/30' : 'bg-black/20 border-white/10'}`}
+        >
+           <Heart size={18} className={`transition-colors duration-300 ${isLiked ? "fill-red-500 text-red-500" : "text-white"}`} />
         </button>
         
         {item.image_url ? (

@@ -28,7 +28,7 @@ const AdminPanel = ({ restaurant, onLogout }) => {
   const [isDark, setIsDark] = useState(() => localStorage.getItem('theme') === 'dark');
   const [lang, setLang] = useState(() => localStorage.getItem('adminLang') || 'en'); 
   const [activeTab, setActiveTab] = useState('items'); 
-  const [toast, setToast] = useState(null); // Updated: Using Toast state instead of text status
+  const [toast, setToast] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -256,7 +256,38 @@ const AdminPanel = ({ restaurant, onLogout }) => {
               </div>
               <div className="lg:col-span-8 space-y-6 order-1 lg:order-2">
                  <div className="relative"><div className={`absolute top-4 ${lang === 'ar' ? 'left-4' : 'right-4'} ${textMuted}`}><SearchIcon /></div><input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t[lang].search} className={`w-full p-4 ${lang === 'ar' ? 'pl-12' : 'pr-12'} rounded-2xl border shadow-sm outline-none ${bgCard} ${borderMain} ${textMain} focus:ring-2 focus:ring-[#3c3728]/20`} /></div>
-                 {loading ? <div className="text-center py-20 animate-pulse text-gray-400">{t[lang].loading}</div> : <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{filteredItems.map(item => (<motion.div layout key={item.id} className={`p-4 rounded-2xl shadow-sm border flex gap-4 items-start group hover:shadow-md transition-all ${bgCard} ${!item.is_available && 'opacity-60 grayscale'} ${editingItem === item.id ? 'border-orange-400 ring-2 ring-orange-500/20' : borderMain}`}><div className={`w-20 h-20 rounded-xl overflow-hidden shrink-0 border relative ${isDark ? 'bg-[#2C2C2C] border-[#333]' : 'bg-gray-50 border-gray-100'}`}>{item.image_url ? <img src={item.image_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-500"><UploadIcon /></div>}</div><div className="flex-1 min-w-0 py-1"><div className="flex justify-between items-start mb-1"><h4 className={`font-bold truncate px-1 ${textMain}`}>{lang === 'en' ? item.name_en : item.name_ar}</h4><span className="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded text-[10px] font-bold tracking-wide">{item.price}</span></div><p className={`text-xs px-1 ${textMuted} truncate`}>{lang === 'en' ? item.description_en : item.description_ar}</p><div className="flex items-center gap-2 mt-3"><button onClick={() => toggleAvailability(item)} className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors ${item.is_available ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20'}`}>{item.is_available ? <><EyeIcon /> {t[lang].available}</> : <><EyeOffIcon /> {t[lang].soldOut}</>}</button><div className="flex-1"></div><div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => handleEditClick(item)} className="p-1.5 text-gray-400 hover:text-white hover:bg-orange-400 rounded-lg"><EditIcon /></button><button onClick={() => handleDeleteItem(item.id)} className="p-1.5 text-gray-400 hover:text-white hover:bg-red-500 rounded-lg"><TrashIcon /></button></div></div></div></motion.div>))}</div>}
+                 {loading ? <div className="text-center py-20 animate-pulse text-gray-400">{t[lang].loading}</div> : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {filteredItems.map(item => (
+                        <motion.div layout key={item.id} className={`p-4 rounded-2xl shadow-sm border flex gap-4 items-start group hover:shadow-md transition-all ${bgCard} ${!item.is_available && 'opacity-60 grayscale'} ${editingItem === item.id ? 'border-orange-400 ring-2 ring-orange-500/20' : borderMain}`}>
+                          <div className={`w-20 h-20 rounded-xl overflow-hidden shrink-0 border relative ${isDark ? 'bg-[#2C2C2C] border-[#333]' : 'bg-gray-50 border-gray-100'}`}>
+                            {item.image_url ? <img src={item.image_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-500"><UploadIcon /></div>}
+                          </div>
+                          <div className="flex-1 min-w-0 py-1">
+                            <div className="flex justify-between items-start mb-1">
+                              <h4 className={`font-bold truncate px-1 ${textMain}`}>{lang === 'en' ? item.name_en : item.name_ar}</h4>
+                              <div className="flex items-center gap-2">
+                                <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-red-500/10 text-red-500">
+                                  <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                  {item.likes || 0}
+                                </span>
+                                <span className="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded text-[10px] font-bold tracking-wide">{item.price}</span>
+                              </div>
+                            </div>
+                            <p className={`text-xs px-1 ${textMuted} truncate`}>{lang === 'en' ? item.description_en : item.description_ar}</p>
+                            <div className="flex items-center gap-2 mt-3">
+                              <button onClick={() => toggleAvailability(item)} className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors ${item.is_available ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20'}`}>{item.is_available ? <><EyeIcon /> {t[lang].available}</> : <><EyeOffIcon /> {t[lang].soldOut}</>}</button>
+                              <div className="flex-1"></div>
+                              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onClick={() => handleEditClick(item)} className="p-1.5 text-gray-400 hover:text-white hover:bg-orange-400 rounded-lg"><EditIcon /></button>
+                                <button onClick={() => handleDeleteItem(item.id)} className="p-1.5 text-gray-400 hover:text-white hover:bg-red-500 rounded-lg"><TrashIcon /></button>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                 )}
                  {!loading && filteredItems.length === 0 && <div className={`text-center py-20 rounded-3xl border border-dashed ${bgCard} ${borderMain} ${textMuted}`}>{t[lang].noItems}</div>}
               </div>
             </motion.div>
@@ -277,8 +308,8 @@ const AdminPanel = ({ restaurant, onLogout }) => {
                           {editingCatId === cat.id ? (
                             <div className="flex gap-2 flex-1 items-center">
                                 <input type="number" className={`${inputClass} w-16 p-2 text-sm`} value={editCatData.order} onChange={e => setEditCatData({...editCatData, order: e.target.value})} />
-                                <input className={`${inputClass} p-2 text-sm`} value={editCatData.en} onChange={e => setEditCatData({...editCatData, en: e.target.value})} dir="ltr" />
-                                <input className={`${inputClass} p-2 text-sm`} value={editCatData.ar} onChange={e => setEditCatData({...editCatData, ar: e.target.value})} dir="rtl" />
+                                <input className={`${inputClass} p-2 text-sm`} value={editCatData.en} onChange={editCatData.en = e.target.value} dir="ltr" />
+                                <input className={`${inputClass} p-2 text-sm`} value={editCatData.ar} onChange={editCatData.ar = e.target.value} dir="rtl" />
                                 <button onClick={handleSaveEditCat} className="text-emerald-500 bg-emerald-500/10 p-2 rounded-lg"><CheckIcon /></button>
                             </div>
                           ) : (
