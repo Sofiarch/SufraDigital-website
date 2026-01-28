@@ -2,8 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* No global html/body overflow rules here, we handle it per-section now */
-
+/* --- Existing Animations --- */
 @keyframes shadow-pulse {
   0% { transform: scale(0.9); opacity: 0.8; }
   50% { transform: scale(1.1); opacity: 1; }
@@ -12,4 +11,37 @@
 
 .animate-shadow {
   animation: shadow-pulse 6s ease-in-out infinite;
+}
+
+/* --- New Modern Utilities --- */
+
+/* 1. Hide Scrollbar (but keep scrolling functional) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* 2. Fade Edges for horizontal lists (Gradient Mask) */
+.mask-gradient {
+  mask-image: linear-gradient(to right, transparent, black 20px, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black 90%, transparent);
+}
+
+/* 3. Smooth Fade In Animation for Components */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* 4. Glassmorphism Tweak (Safari support) */
+.backdrop-blur-xl {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }

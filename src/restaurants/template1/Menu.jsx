@@ -1,117 +1,167 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Icons
-const CartIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>;
+// --- COMPONENTS ---
+import MenuCard from '../../components/ui/MenuCard';
+import ItemModal from '../../components/ui/ItemModal';
+import MenuNavbar from '../../components/ui/MenuNavbar';
+import CategoryFilter from '../../components/ui/CategoryFilter';
+import SubCategoryCard from '../../components/ui/SubCategoryCard';
+import SearchInput from '../../components/ui/SearchInput';
+import LoadingSkeleton from '../../components/ui/LoadingSkeleton';
+import Footer from '../../components/ui/Footer';
+
+// --- CONFIG ---
+const DESIGN = { primary: "#EAC8CA" };
+const RESTAURANT_INFO = {
+  logo: "https://cdn-icons-png.flaticon.com/512/3448/3448609.png", 
+  address_en: "Baghdad, Zayona",
+  address_ar: "بغداد، زيونة"
+};
 
 const Template1Menu = () => {
+  // State
   const [restaurant, setRestaurant] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [items, setItems] = useState([]);
-  const [activeCat, setActiveCat] = useState('ALL');
+  const [activeCat, setActiveCat] = useState(null);
+  const [activeSubCat, setActiveSubCat] = useState('ALL');
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [lang, setLang] = useState('en'); 
+  const [isDark, setIsDark] = useState(true); 
 
+  const toggleTheme = () => setIsDark(!isDark);
+  const toggleLang = () => setLang(prev => prev === 'en' ? 'ar' : 'en');
+
+  // Fetch Data
   useEffect(() => {
     async function fetchData() {
-      // 1. Get Restaurant Details
-      const { data: rest } = await supabase.from('restaurants').select('*').eq('slug', 'template1').single();
+      const { data: rest } = await supabase.from('restaurants').select('id, slug, name_en, name_ar').eq('slug', 'template1').single();
       if (!rest) return;
       setRestaurant(rest);
 
-      // 2. Get Categories
-      const { data: cats } = await supabase.from('categories').select('*').eq('restaurant_id', rest.id);
+      // Order by 'sort_order' so Admin Panel changes reflect here
+      const { data: cats } = await supabase.from('categories').select('*').eq('restaurant_id', rest.id).order('sort_order', { ascending: true });
       setCategories(cats || []);
+      
+      // Auto-select first category
+      if (cats && cats.length > 0) setActiveCat(cats[0].id);
 
-      // 3. Get Items
+      const catIds = cats?.map(c => c.id) || [];
+      if (catIds.length > 0) {
+        const { data: subs } = await supabase.from('subcategories').select('*').in('category_id', catIds);
+        setSubcategories(subs || []);
+      }
+
       const { data: menu } = await supabase.from('menu_items').select('*').eq('restaurant_id', rest.id);
       setItems(menu || []);
-      
       setLoading(false);
     }
     fetchData();
   }, []);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50">Loading...</div>;
+  // Auto-Scroll to top when category changes
+  useEffect(() => {
+     const timer = setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+     return () => clearTimeout(timer);
+  }, [activeCat, activeSubCat]);
+
+  // Reset subcategory when main category changes
+  useEffect(() => { setActiveSubCat('ALL'); }, [activeCat]);
 
   // Filter Logic
-  const filteredItems = activeCat === 'ALL' 
-    ? items 
-    : items.filter(item => item.category_id === activeCat);
+  const visibleSubcategories = searchQuery ? [] : subcategories.filter(sub => sub.category_id === activeCat);
+  const filteredItems = items.filter(item => {
+    if (searchQuery) {
+      const name = lang === 'en' ? item.name_en : item.name_ar;
+      return name.toLowerCase().includes(searchQuery.toLowerCase());
+    }
+    if (item.category_id !== activeCat) return false;
+    return activeSubCat === 'ALL' ? item.subcategory_id === null : item.subcategory_id === activeSubCat;
+  });
+
+  if (loading) return <LoadingSkeleton isDark={isDark} />;
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
+    exit: { opacity: 0 }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-gray-800 pb-20">
-      
-      {/* --- HERO SECTION --- */}
-      <div className="bg-white p-8 pb-12 shadow-sm text-center relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 mb-2">{restaurant.name_en}</h1>
-        <p className="text-gray-400 text-sm uppercase tracking-widest">{restaurant.name_ar}</p>
+    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className={`min-h-screen font-sans pb-0 flex flex-col transition-colors duration-300 ${isDark ? 'bg-black text-white' : 'bg-[#f4f4f4] text-[#1a1a1a]'}`}>
+      <MenuNavbar 
+        restaurant={restaurant}
+        logo={RESTAURANT_INFO.logo}
+        address={lang === 'en' ? RESTAURANT_INFO.address_en : RESTAURANT_INFO.address_ar}
+        accentColor={DESIGN.primary}
+        isDark={isDark}
+        toggleTheme={toggleTheme}
+        lang={lang}
+        toggleLang={toggleLang}
+      />
+
+      <div className="pt-6">
+        <SearchInput value={searchQuery} onChange={setSearchQuery} accentColor={DESIGN.primary} isDark={isDark} placeholder={lang === 'en' ? "Search for items..." : "ابحث عن طبق..."} />
       </div>
 
-      {/* --- STICKY CATEGORY BAR --- */}
-      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 overflow-x-auto">
-        <div className="flex p-4 gap-3 max-w-md mx-auto no-scrollbar">
-          <button 
-            onClick={() => setActiveCat('ALL')}
-            className={`whitespace-nowrap px-6 py-2 rounded-full text-sm font-bold transition-all ${activeCat === 'ALL' ? 'bg-gray-900 text-white shadow-lg transform scale-105' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-          >
-            All Items
-          </button>
-          {categories.map(cat => (
-            <button 
-              key={cat.id} 
-              onClick={() => setActiveCat(cat.id)}
-              className={`whitespace-nowrap px-6 py-2 rounded-full text-sm font-bold transition-all ${activeCat === cat.id ? 'bg-gray-900 text-white shadow-lg transform scale-105' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-            >
-              {cat.name_en}
-            </button>
-          ))}
-        </div>
-      </div>
+      {!searchQuery && (
+        <CategoryFilter categories={categories} activeCat={activeCat} setActiveCat={setActiveCat} accentColor={DESIGN.primary} lang={lang} isDark={isDark} />
+      )}
 
-      {/* --- MENU GRID --- */}
-      <div className="max-w-md mx-auto p-6 space-y-6">
-        {filteredItems.map(item => (
-           <motion.div 
-             layout
-             initial={{ opacity: 0, y: 10 }} 
-             animate={{ opacity: 1, y: 0 }}
-             key={item.id} 
-             className="bg-white rounded-3xl p-4 shadow-sm border border-gray-100 flex gap-4 overflow-hidden relative"
-           >
-              {/* Image */}
-              <div className="w-24 h-24 bg-gray-100 rounded-2xl flex-shrink-0 overflow-hidden">
-                 {item.image_url ? (
-                    <img src={item.image_url} className="w-full h-full object-cover" />
-                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">No Img</div>
-                 )}
-              </div>
+      <div className="max-w-7xl mx-auto p-4 md:p-8 flex-1 w-full min-h-[50vh]">
+        
+        {/* Subcategories */}
+        <AnimatePresence mode="wait">
+          {!searchQuery && activeSubCat === 'ALL' && visibleSubcategories.length > 0 && (
+             <motion.div key="subcategories" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="mb-12">
+                <h3 className={`text-sm font-bold uppercase tracking-widest mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{lang === 'en' ? 'Categories' : 'الأقسام'}</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                   {visibleSubcategories.map(sub => (
+                      <SubCategoryCard key={sub.id} subcategory={sub} lang={lang} onClick={(id) => setActiveSubCat(id)} accentColor={DESIGN.primary} />
+                   ))}
+                </div>
+             </motion.div>
+          )}
+        </AnimatePresence>
 
-              {/* Content */}
-              <div className="flex-1 flex flex-col justify-center">
-                 <h3 className="font-bold text-lg text-gray-900 leading-tight">{item.name_en}</h3>
-                 <p className="text-xs text-gray-400 line-clamp-2 mt-1 mb-3">{item.description_en}</p>
-                 <div className="flex justify-between items-center">
-                    <span className="font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full text-sm">{item.price}</span>
-                    <button className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center hover:bg-gray-700 transition">
-                       +
-                    </button>
-                 </div>
-              </div>
-           </motion.div>
-        ))}
-
-        {filteredItems.length === 0 && (
-            <div className="text-center py-20 text-gray-400">
-                No items in this category.
-            </div>
+        {/* Back Button */}
+        {!searchQuery && activeSubCat !== 'ALL' && (
+           <button onClick={() => setActiveSubCat('ALL')} style={{ color: isDark ? DESIGN.primary : '#fff', backgroundColor: isDark ? '#2a2a2a' : DESIGN.primary }} className={`mb-8 flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-full transition-colors shadow-sm hover:opacity-90`}>
+             <ArrowLeft size={18} /> {lang === 'en' ? 'Back' : 'رجوع'}
+           </button>
         )}
+
+        {/* Menu Items */}
+        <AnimatePresence mode="wait">
+            <motion.div key={activeCat + activeSubCat + searchQuery} variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-4">
+                {searchQuery && <div className={`text-sm font-bold mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{lang === 'en' ? `Found ${filteredItems.length} results` : `نتائج البحث: ${filteredItems.length}`}</div>}
+                
+                {!searchQuery && activeSubCat === 'ALL' && filteredItems.length > 0 && visibleSubcategories.length > 0 && (
+                   <h3 className={`text-sm font-bold uppercase tracking-widest mb-4 mt-8 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{lang === 'en' ? 'Direct Items' : 'عناصر أخرى'}</h3>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
+                  {filteredItems.map(item => (
+                     <MenuCard key={item.id} item={{ ...item, name_en: lang === 'en' ? item.name_en : item.name_ar, description_en: lang === 'en' ? item.description_en : item.description_ar }} currency={lang === 'en' ? 'IQD' : 'د.ع'} accentColor={DESIGN.primary} isDark={isDark} onClick={(clickedItem) => setSelectedItem(clickedItem)} />
+                  ))}
+                </div>
+                
+                {filteredItems.length === 0 && !visibleSubcategories.length && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`text-center py-20 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>{lang === 'en' ? 'No items found.' : 'لا توجد عناصر.'}</motion.div>
+                )}
+            </motion.div>
+        </AnimatePresence>
       </div>
 
+      <Footer isDark={isDark} lang={lang} />
+      <ItemModal item={selectedItem} isOpen={!!selectedItem} onClose={() => setSelectedItem(null)} currency={lang === 'en' ? 'IQD' : 'د.ع'} accentColor={DESIGN.primary} lang={lang} isDark={isDark} />
     </div>
   );
 };
-
 export default Template1Menu;
