@@ -20,7 +20,6 @@ const DESIGN = {
 };
 
 const RESTAURANT_INFO = {
-  // UPDATED: Same logo as Template 1
   logo: "https://cdn-icons-png.flaticon.com/512/3448/3448609.png", 
   address_en: "Downtown, Luxury Ave",
   address_ar: "وسط المدينة، شارع الفخامة"
@@ -250,50 +249,58 @@ const Template2Menu = () => {
 
                 {/* THE LIST */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
-                  {filteredItems.map(item => (
-                     <motion.div 
-                        key={item.id} 
-                        variants={itemVariants}
-                        onClick={() => setSelectedItem(item)}
-                        className="group cursor-pointer"
-                     >
-                        <div className="flex gap-4 items-center">
-                            {/* Text Info */}
-                            <div className="flex-1 min-w-0">
-                                <div className={`flex items-baseline justify-between border-b border-dashed pb-2 mb-2 transition-colors duration-500
-                                    ${isDark 
-                                        ? 'border-white/10 group-hover:border-[#D4AF37]/50' 
-                                        : 'border-black/10 group-hover:border-[#D4AF37]/50'
-                                    }`}
-                                >
-                                    <h3 className={`font-display text-lg tracking-wide transition-colors duration-300 truncate pr-2
+                  {filteredItems.map(item => {
+                     const isAvailable = item.is_available !== false;
+                     return (
+                        <motion.div 
+                            key={item.id} 
+                            variants={itemVariants}
+                            onClick={() => isAvailable && setSelectedItem(item)}
+                            className={`group cursor-pointer ${!isAvailable ? 'opacity-60 grayscale cursor-not-allowed' : ''}`}
+                        >
+                            <div className="flex gap-4 items-center">
+                                {/* Text Side */}
+                                <div className="flex-1 min-w-0">
+                                    <div className={`flex items-baseline justify-between border-b border-dashed pb-2 mb-2 transition-colors duration-500
                                         ${isDark 
-                                            ? 'text-[#E5E5E5] group-hover:text-[#D4AF37]' 
-                                            : 'text-[#2D2D2D] group-hover:text-[#D4AF37]'
-                                        }`}
-                                    >
-                                        {lang === 'en' ? item.name_en : item.name_ar}
-                                    </h3>
-                                    <span className="font-luxury font-bold text-[#D4AF37] text-lg whitespace-nowrap">
-                                        {Number(item.price).toLocaleString()} <span className="text-[10px] text-gray-500">{lang === 'en' ? 'IQD' : 'د.ع'}</span>
-                                    </span>
+                                            ? 'border-white/10' 
+                                            : 'border-black/10'}
+                                        ${isAvailable ? 'group-hover:border-[#D4AF37]/50' : ''}
+                                    `}>
+                                        <h3 className={`font-display text-lg tracking-wide transition-colors duration-300 truncate pr-2
+                                            ${isDark ? 'text-[#E5E5E5]' : 'text-[#2D2D2D]'}
+                                            ${isAvailable ? 'group-hover:text-[#D4AF37]' : 'text-gray-500 line-through'}
+                                        `}>
+                                            {lang === 'en' ? item.name_en : item.name_ar}
+                                        </h3>
+                                        <span className={`font-luxury font-bold text-lg whitespace-nowrap ${isAvailable ? 'text-[#D4AF37]' : 'text-gray-500'}`}>
+                                            {Number(item.price).toLocaleString()} <span className="text-[10px] text-gray-500">{lang === 'en' ? 'IQD' : 'د.ع'}</span>
+                                        </span>
+                                    </div>
+                                    
+                                    {!isAvailable && (
+                                        <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/30 px-2 py-0.5 rounded inline-block">
+                                            {lang === 'en' ? 'Sold Out' : 'غير متوفر'}
+                                        </span>
+                                    )}
                                 </div>
-                            </div>
 
-                            {/* Thumbnail */}
-                            {item.image_url && (
-                                <div className={`w-16 h-16 shrink-0 rounded-full overflow-hidden border transition-colors duration-500
-                                    ${isDark 
-                                        ? 'border-white/10 group-hover:border-[#D4AF37]' 
-                                        : 'border-black/5 group-hover:border-[#D4AF37]'
-                                    }`}
-                                >
-                                    <BlurImage src={item.image_url} alt={item.name_en} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500" />
-                                </div>
-                            )}
-                        </div>
-                     </motion.div>
-                  ))}
+                                {/* Image Side */}
+                                {item.image_url && (
+                                    <div className={`w-16 h-16 shrink-0 rounded-full overflow-hidden border transition-colors duration-500 relative
+                                        ${isDark 
+                                            ? 'border-white/10' 
+                                            : 'border-black/5'}
+                                        ${isAvailable ? 'group-hover:border-[#D4AF37]' : ''}
+                                    `}>
+                                        <BlurImage src={item.image_url} alt={item.name_en} className="w-full h-full object-cover opacity-90 transition-opacity duration-500" />
+                                        {!isAvailable && <div className="absolute inset-0 bg-black/50" />}
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                     );
+                  })}
                 </div>
                 
                 {filteredItems.length === 0 && (

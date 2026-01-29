@@ -110,11 +110,16 @@ const Template3Menu = () => {
       className={`min-h-screen font-sans pb-0 flex flex-col transition-colors duration-500 relative`}
     >
       {/* BACKGROUND LAYERS */}
+      {/* 1. Base Color */}
+      <div className={`fixed inset-0 z-[-1] transition-colors duration-700 ${isDark ? 'bg-[#1E1B18]' : 'bg-[#F5F2EA]'}`} />
+      
+      {/* 2. Texture Image (Fixed) */}
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-700 opacity-30"
         style={{ backgroundImage: `url(${isDark ? BG_DARK_TEXTURE : BG_LIGHT_TEXTURE})` }}
       />
-      <div className={`fixed inset-0 z-[-1] transition-colors duration-700 ${isDark ? 'bg-[#1E1B18]' : 'bg-[#F5F2EA]'}`} />
+      
+      {/* 3. Tint Overlay */}
       <div className={`fixed inset-0 z-0 ${isDark ? 'bg-black/30' : 'bg-[#6F4E37]/5'} backdrop-blur-[1px]`} />
 
       <style>{`
@@ -189,7 +194,7 @@ const Template3Menu = () => {
       {/* 3. MAIN CONTENT */}
       <div className="relative z-10 max-w-4xl mx-auto p-4 md:p-8 flex-1 w-full min-h-[60vh]">
         
-        {/* === SECTION 1: SUBCATEGORIES (Navigation Tiles) === */}
+        {/* === SECTION 1: SUBCATEGORIES === */}
         <AnimatePresence mode="wait">
           {!searchQuery && activeSubCat === 'ALL' && visibleSubcategories.length > 0 && (
              <motion.div 
@@ -199,7 +204,6 @@ const Template3Menu = () => {
                exit={{ opacity: 0, y: -10 }}
                className="mb-12"
              >
-                {/* SECTION LABEL */}
                 <div className={`text-xs font-bold uppercase tracking-widest mb-4 opacity-70 flex items-center gap-2
                     ${isDark ? 'text-[#A1887F]' : 'text-[#8D6E63]'}`}>
                     <Coffee size={14} /> {lang === 'en' ? 'Collections' : 'المجموعات'}
@@ -214,7 +218,6 @@ const Template3Menu = () => {
                            ${isDark ? 'border-white/10' : 'border-white/60'}
                         `}
                       >
-                        {/* Image */}
                         {sub.image_url ? (
                             <BlurImage 
                                 src={sub.image_url} 
@@ -225,8 +228,6 @@ const Template3Menu = () => {
                                 <Coffee className={`opacity-20 ${isDark ? 'text-white' : 'text-[#6F4E37]'}`} size={32} />
                             </div>
                         )}
-                        
-                        {/* Text Overlay (Always Visible) */}
                         <div className="absolute inset-0 bg-black/30 flex items-center justify-center p-2 group-hover:bg-black/10 transition-colors">
                              <span className="text-white text-sm font-bold tracking-wide text-center drop-shadow-md backdrop-blur-[4px] px-3 py-1 rounded-full bg-black/20 border border-white/10">
                                  {lang === 'en' ? sub.name_en : sub.name_ar}
@@ -251,7 +252,7 @@ const Template3Menu = () => {
            </button>
         )}
 
-        {/* === SECTION 2: ITEMS LIST (Distinct from Categories) === */}
+        {/* === SECTION 2: ITEMS LIST === */}
         <AnimatePresence mode="wait">
             <motion.div 
                key={`${activeCat}-${activeSubCat}-${searchQuery}`}
@@ -260,7 +261,7 @@ const Template3Menu = () => {
                animate="visible"
                exit="exit"
             >
-                 {/* VISUAL DIVIDER */}
+                {/* DIVIDER */}
                 {!searchQuery && activeSubCat === 'ALL' && visibleSubcategories.length > 0 && filteredItems.length > 0 && (
                     <div className="flex items-center gap-4 my-8 opacity-50">
                         <div className={`h-[1px] flex-1 ${isDark ? 'bg-white/20' : 'bg-[#6F4E37]/20'}`}></div>
@@ -272,41 +273,59 @@ const Template3Menu = () => {
                 )}
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-8">
-                    {filteredItems.map(item => (
-                        <motion.div 
-                            key={item.id} 
-                            variants={itemVariants}
-                            onClick={() => setSelectedItem(item)}
-                            className={`group relative flex flex-col overflow-hidden rounded-[16px] cursor-pointer shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1
-                                ${isDark 
-                                    ? 'bg-[#25211E] border border-white/5' // Dark Mode Card
-                                    : 'bg-white border border-[#E5E0D8]'} // Light Mode Card
-                            `}
-                        >
-                            {/* Image Area (Paper Photo Look) */}
-                            <div className="aspect-[4/3] w-full overflow-hidden relative bg-gray-200">
-                                {item.image_url ? (
-                                    <BlurImage src={item.image_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                ) : (
-                                    <div className={`flex items-center justify-center h-full text-xs opacity-40 ${isDark ? 'text-white' : 'text-black'}`}>No Image</div>
-                                )}
-                                
-                                {/* Price Tag (Corner Pill) */}
-                                <div className={`absolute top-2 right-2 px-2.5 py-1 rounded-md text-xs font-bold shadow-sm backdrop-blur-md
-                                    ${isDark ? 'bg-black/70 text-[#D7CCC8]' : 'bg-white/90 text-[#5D4037]'}
-                                `}>
-                                    {Number(item.price).toLocaleString()}
-                                </div>
-                            </div>
+                    {filteredItems.map(item => {
+                        const isAvailable = item.is_available !== false;
+                        return (
+                            <motion.div 
+                                key={item.id} 
+                                variants={itemVariants}
+                                onClick={() => isAvailable && setSelectedItem(item)}
+                                className={`group relative flex flex-col overflow-hidden rounded-[16px] cursor-pointer shadow-lg transition-all 
+                                    ${isAvailable ? 'hover:shadow-2xl hover:-translate-y-1' : 'grayscale opacity-75 cursor-not-allowed'}
+                                    ${isDark 
+                                        ? 'bg-[#25211E] border border-white/5' 
+                                        : 'bg-white border border-[#E5E0D8]'}
+                                `}
+                            >
+                                {/* Image Area */}
+                                <div className="aspect-[4/3] w-full overflow-hidden relative bg-gray-200">
+                                    {item.image_url ? (
+                                        <BlurImage src={item.image_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    ) : (
+                                        <div className={`flex items-center justify-center h-full text-xs opacity-40 ${isDark ? 'text-white' : 'text-black'}`}>No Image</div>
+                                    )}
+                                    
+                                    {/* SOLD OUT OVERLAY */}
+                                    {!isAvailable && (
+                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
+                                            <span className="bg-red-600/90 text-white text-xs font-bold px-3 py-1 rounded shadow-sm uppercase tracking-wider transform -rotate-3">
+                                                {lang === 'en' ? 'Sold Out' : 'نفذت الكمية'}
+                                            </span>
+                                        </div>
+                                    )}
 
-                            {/* Title (Clean Paper Look) */}
-                            <div className="p-3 pt-4 text-center">
-                                <h3 className={`font-bold text-sm leading-tight line-clamp-2 ${isDark ? 'text-[#E5E0D8]' : 'text-[#44403C]'}`}>
-                                    {lang === 'en' ? item.name_en : item.name_ar}
-                                </h3>
-                            </div>
-                        </motion.div>
-                    ))}
+                                    {/* Price Tag */}
+                                    {isAvailable && (
+                                        <div className={`absolute top-2 right-2 px-2.5 py-1 rounded-md text-xs font-bold shadow-sm backdrop-blur-md
+                                            ${isDark ? 'bg-black/70 text-[#D7CCC8]' : 'bg-white/90 text-[#5D4037]'}
+                                        `}>
+                                            {Number(item.price).toLocaleString()}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Title */}
+                                <div className="p-3 pt-4 text-center">
+                                    <h3 className={`font-bold text-sm leading-tight line-clamp-2 
+                                        ${isDark ? 'text-[#E5E0D8]' : 'text-[#44403C]'}
+                                        ${!isAvailable ? 'line-through opacity-60' : ''}
+                                    `}>
+                                        {lang === 'en' ? item.name_en : item.name_ar}
+                                    </h3>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
                 </div>
             </motion.div>
         </AnimatePresence>
@@ -319,9 +338,12 @@ const Template3Menu = () => {
         )}
       </div>
 
-      <Footer isDark={isDark} lang={lang} />
+      {/* FOOTER - Updated with distinct background and z-index to fix "burning" issue */}
+      <div className={`relative z-20 mt-auto border-t backdrop-blur-xl 
+          ${isDark ? 'border-white/5 bg-[#1E1B18]/90' : 'border-[#6F4E37]/10 bg-[#F5F2EA]/90'}`}>
+          <Footer isDark={isDark} lang={lang} />
+      </div>
 
-      {/* Modal - Cafe Variant */}
       <ItemModal 
         item={selectedItem} 
         isOpen={!!selectedItem} 

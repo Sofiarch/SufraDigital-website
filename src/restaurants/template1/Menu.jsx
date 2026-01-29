@@ -40,9 +40,9 @@ const Template1Menu = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // --- UPDATED DEFAULTS HERE ---
-  const [lang, setLang] = useState('ar'); // <--- Default is now Arabic
-  const [isDark, setIsDark] = useState(true); // <--- Default is Dark Mode
+  // --- DEFAULTS ---
+  const [lang, setLang] = useState('ar'); 
+  const [isDark, setIsDark] = useState(true); 
 
   // --- HANDLERS ---
   const toggleTheme = () => setIsDark(!isDark);
@@ -61,7 +61,7 @@ const Template1Menu = () => {
       if (!rest) return;
       setRestaurant(rest);
 
-      // 2. Get Categories (Sorted by your Admin Panel order)
+      // 2. Get Categories
       const { data: cats } = await supabase
         .from('categories')
         .select('*')
@@ -70,7 +70,7 @@ const Template1Menu = () => {
 
       setCategories(cats || []);
       
-      // Auto-select the first category in the sorted list
+      // Auto-select the first category
       if (cats && cats.length > 0) {
         setActiveCat(cats[0].id);
       }
@@ -98,8 +98,6 @@ const Template1Menu = () => {
   }, []);
 
   // --- UX EFFECTS ---
-  
-  // Auto-scroll to top when navigating categories or searching
   useEffect(() => {
      const timer = setTimeout(() => {
        window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -107,7 +105,6 @@ const Template1Menu = () => {
      return () => clearTimeout(timer);
   }, [activeCat, activeSubCat, searchQuery]);
 
-  // Reset subcategory selection when switching main categories
   useEffect(() => { 
     setActiveSubCat('ALL'); 
   }, [activeCat]);
@@ -125,9 +122,9 @@ const Template1Menu = () => {
     // Category match
     if (item.category_id !== activeCat) return false;
 
-    // Subcategory logic (Optional subcategories)
+    // Subcategory logic
     if (activeSubCat === 'ALL') {
-      return item.subcategory_id === null; // Show items sitting directly in the category
+      return item.subcategory_id === null; 
     } else {
       return item.subcategory_id === activeSubCat;
     }
@@ -140,7 +137,7 @@ const Template1Menu = () => {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1, 
-      transition: { staggerChildren: 0.06 } // Smooth waterfall entry
+      transition: { staggerChildren: 0.06 } 
     },
     exit: { opacity: 0 }
   };
@@ -270,6 +267,7 @@ const Template1Menu = () => {
                        currency={lang === 'en' ? 'IQD' : 'د.ع'}
                        accentColor={DESIGN.primary}
                        isDark={isDark}
+                       lang={lang} // <--- Added lang prop here
                        onClick={(clickedItem) => setSelectedItem(clickedItem)}
                      />
                   ))}

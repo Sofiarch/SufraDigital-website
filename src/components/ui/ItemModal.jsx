@@ -21,7 +21,7 @@ const ItemModal = ({ item, isOpen, onClose, currency = "IQD", lang = 'en', isDar
   // --- VARIANTS ---
   const isLuxury = variant === 'luxury';
   const isModern = variant === 'modern'; 
-  const isCafe = variant === 'cafe'; // <--- UPDATED CAFE VARIANT
+  const isCafe = variant === 'cafe'; 
   const isCentered = isLuxury || isModern || isCafe; 
 
   const toggleLike = async (e) => {
@@ -54,13 +54,8 @@ const ItemModal = ({ item, isOpen, onClose, currency = "IQD", lang = 'en', isDar
   } else if (isModern) {
       containerClasses = `relative w-full max-w-lg flex flex-col shadow-2xl rounded-2xl border ${isDark ? 'bg-[#0F172A] border-slate-700' : 'bg-white border-slate-200'}`;
   } else if (isCafe) {
-      // Cafe: Textured Paper Look ("Cardstock")
-      // Light Mode: Warm Cream Paper | Dark Mode: Deep Espresso Card
       containerClasses = `relative w-full max-w-lg flex flex-col shadow-2xl rounded-[32px] overflow-hidden border-4 
-        ${isDark 
-            ? 'bg-[#2A2624] border-[#3E3A36] text-[#E5E0D8]' 
-            : 'bg-[#F9F7F2] border-[#FFF] text-[#44403C]'
-        }`;
+        ${isDark ? 'bg-[#2A2624] border-[#3E3A36] text-[#E5E0D8]' : 'bg-[#F9F7F2] border-[#FFF] text-[#44403C]'}`;
   } else {
       containerClasses = `relative w-full max-w-md h-[90vh] sm:h-auto sm:max-h-[85vh] overflow-hidden flex flex-col shadow-2xl ${isDark ? 'bg-[#181818]' : 'bg-white'} rounded-t-[32px] sm:rounded-[32px]`;
   }
@@ -89,33 +84,24 @@ const ItemModal = ({ item, isOpen, onClose, currency = "IQD", lang = 'en', isDar
             <X size={20} />
           </button>
 
-          {/* Like Button */}
-          {!isLuxury && (
-             <button onClick={toggleLike} className={`absolute top-4 left-4 z-20 p-2 rounded-full transition-all active:scale-90 ${
-                 isCafe 
-                   ? `bg-black/20 hover:bg-black/30 backdrop-blur-md ${isLiked ? 'text-red-500' : 'text-white'}`
-                   : `border backdrop-blur-md shadow-lg ${isLiked ? 'bg-red-500 text-white border-red-500' : (isDark ? 'bg-black/40 text-white border-white/10' : 'bg-white/80 text-gray-400 border-gray-200')}`
-               }`}
-             >
+          {/* Like Button (Standard Position: Top Left) - Only for T1 */}
+          {!isCentered && (
+             <button onClick={toggleLike} className={`absolute top-4 left-4 z-20 p-2 rounded-full transition-all active:scale-90 border backdrop-blur-md shadow-lg ${isLiked ? 'bg-red-500 text-white border-red-500' : (isDark ? 'bg-black/40 text-white border-white/10' : 'bg-white/80 text-gray-400 border-gray-200')}`}>
                <Heart size={20} className={isLiked ? 'fill-current' : ''} />
              </button>
           )}
 
           {/* Image Section */}
           <div className={`w-full shrink-0 relative ${isLuxury ? 'h-64 border-b border-[#D4AF37]/20' : (isCafe ? 'h-72 m-2 w-[calc(100%-16px)] rounded-[28px] overflow-hidden' : 'h-80')}`}>
-             {item.image_url ? (
-               <img src={item.image_url} className="w-full h-full object-cover" alt={item.name_en} />
-             ) : (
-               <div className="w-full h-full flex items-center justify-center opacity-30">{lang === 'en' ? 'No Image' : 'لا توجد صورة'}</div>
-             )}
-             {/* Gradient for Cafe (Inside the rounded image) */}
+             {item.image_url ? <img src={item.image_url} className="w-full h-full object-cover" alt={item.name_en} /> : <div className="w-full h-full flex items-center justify-center opacity-30">{lang === 'en' ? 'No Image' : 'لا توجد صورة'}</div>}
+             {/* Gradient for Cafe */}
              {isCafe && <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/50 via-transparent to-transparent" />}
           </div>
 
           {/* Content Section */}
           <div className={`flex-1 overflow-y-auto no-scrollbar ${isCentered ? 'p-8 flex flex-col items-center text-center' : 'p-8'}`}>
              
-             <div className={isCentered ? "w-full space-y-2 mb-6" : "flex justify-between items-start gap-4 mb-6"}>
+             <div className={isCentered ? "w-full space-y-4 mb-6" : "flex justify-between items-start gap-4 mb-6"}>
                 {/* Title */}
                 <h2 className={isLuxury 
                     ? "text-3xl font-display uppercase tracking-widest text-[#D4AF37]" 
@@ -126,10 +112,24 @@ const ItemModal = ({ item, isOpen, onClose, currency = "IQD", lang = 'en', isDar
                     {lang === 'en' ? item.name_en : item.name_ar}
                 </h2>
                 
-                {/* Price */}
                 {isCentered ? (
-                    <div className={`text-2xl font-bold ${isLuxury ? 'text-[#E5E5E5]' : ''}`} style={isCafe ? { color: accentColor } : {}}>
-                        {formattedPrice} <span className="text-sm opacity-70">{currency}</span>
+                    <div className="flex flex-col items-center gap-4">
+                        {/* Price */}
+                        <div className={`text-2xl font-bold ${isLuxury ? 'text-[#E5E5E5]' : ''}`} style={isCafe ? { color: accentColor } : {}}>
+                            {formattedPrice} <span className="text-sm opacity-70">{currency}</span>
+                        </div>
+                        
+                        {/* Centered Heart Button (No Text, Just Icon) */}
+                        <button 
+                            onClick={toggleLike} 
+                            className={`p-3 rounded-full transition-all active:scale-95 ${
+                                isLuxury 
+                                    ? 'text-[#D4AF37] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/10' 
+                                    : 'bg-gray-100 dark:bg-white/5 hover:scale-105'
+                            }`}
+                        >
+                            <Heart size={24} className={isLiked ? (isLuxury ? 'fill-[#D4AF37]' : 'fill-red-500 text-red-500') : (isLuxury ? 'text-[#D4AF37]' : 'text-gray-400')} />
+                        </button>
                     </div>
                 ) : (
                     <div className="text-2xl font-bold tracking-tight" style={{ color: accentColor }}>{formattedPrice}</div>
