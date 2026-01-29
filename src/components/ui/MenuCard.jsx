@@ -5,7 +5,8 @@ import BlurImage from './BlurImage';
 const MenuCard = ({ item, currency = "IQD", isDark = false, accentColor, onClick, lang = 'en' }) => {
   const rawPrice = String(item.price).replace(/[^0-9.]/g, '');
   const formattedPrice = isNaN(Number(rawPrice)) ? "0" : Number(rawPrice).toLocaleString();
-  const isAvailable = item.is_available !== false; // Default to true if undefined
+  // Default to true if undefined
+  const isAvailable = item.is_available !== false; 
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -16,6 +17,7 @@ const MenuCard = ({ item, currency = "IQD", isDark = false, accentColor, onClick
     <motion.div 
       variants={cardVariants} 
       layout 
+      // Only allow click if available
       onClick={() => isAvailable && onClick(item)} 
       whileTap={isAvailable ? { scale: 0.96 } : {}} 
       whileHover={isAvailable ? { y: -4 } : {}} 
@@ -34,7 +36,7 @@ const MenuCard = ({ item, currency = "IQD", isDark = false, accentColor, onClick
           </div>
         )}
 
-        {/* SOLD OUT OVERLAY (Translated) */}
+        {/* SOLD OUT OVERLAY */}
         {!isAvailable && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
                 <span className="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg transform -rotate-6">
@@ -47,9 +49,11 @@ const MenuCard = ({ item, currency = "IQD", isDark = false, accentColor, onClick
       {/* Content */}
       <div className="px-1">
         <div className="flex justify-between items-start gap-4">
+          {/* Title - Strikethrough if unavailable */}
           <h3 className={`font-bold text-lg leading-snug uppercase tracking-wide ${isDark ? 'text-white' : 'text-gray-900'} ${!isAvailable ? 'line-through decoration-red-500/50' : ''}`}>
             {lang === 'en' ? item.name_en : item.name_ar}
           </h3>
+          {/* Price - Grey if unavailable */}
           <span className="shrink-0 font-bold text-lg tracking-tight" style={{ color: isAvailable ? accentColor : '#9CA3AF' }}>
             {formattedPrice} <span className="text-[10px] opacity-60 align-top">{currency}</span>
           </span>

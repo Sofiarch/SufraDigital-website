@@ -1,28 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const BlurImage = ({ src, alt, className, ...props }) => {
   const [isLoading, setLoading] = useState(true);
-  const [currentSrc, setCurrentSrc] = useState(src);
+  const imgRef = useRef(null);
 
-  // Reset loading state if src changes
   useEffect(() => {
+    // Reset loading state if the source URL changes
     setLoading(true);
-    setCurrentSrc(src);
   }, [src]);
 
+  // SAFETY CHECK: If image is already in browser cache, onLoad might not fire.
+  // We check the 'complete' status immediately on mount to fix the "White Box" bug.
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete) {
+      setLoading(false);
+    }
+  }, []);
+
   return (
-    <div className={`relative overflow-hidden ${className} bg-gray-100`}>
+    // Wrapper: Handles layout, rounded corners, and external hover effects
+    // Used bg-gray-200/20 to be subtle in both Dark and Light modes
+    <div className={`relative overflow-hidden bg-gray-200/50 ${className}`}>
       <img
-        src={currentSrc}
+        ref={imgRef}
+        src={src}
         alt={alt}
+        loading="lazy"
+        decoding="async" // Helps prevent scroll jank
         onLoad={() => setLoading(false)}
+        onError={() => setLoading(false)} // If error, show the broken image instead of white box
         className={`
           w-full h-full object-cover 
-          transition-all duration-700 ease-out
-          ${isLoading 
-            ? 'scale-110 blur-lg grayscale opacity-0' // Start state
-            : 'scale-100 blur-0 grayscale-0 opacity-100' // End state
-          }
+          transition-opacity duration-500 ease-out
+          ${isLoading ? 'opacity-0' : 'opacity-100'} 
         `}
         {...props}
       />
