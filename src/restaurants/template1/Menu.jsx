@@ -40,8 +40,9 @@ const Template1Menu = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [lang, setLang] = useState('en'); 
-  const [isDark, setIsDark] = useState(true); // Default to dark mode
+  // --- UPDATED DEFAULTS HERE ---
+  const [lang, setLang] = useState('ar'); // <--- Default is now Arabic
+  const [isDark, setIsDark] = useState(true); // <--- Default is Dark Mode
 
   // --- HANDLERS ---
   const toggleTheme = () => setIsDark(!isDark);
