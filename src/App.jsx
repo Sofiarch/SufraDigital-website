@@ -6,7 +6,8 @@ import Admin from './pages/Admin';
 
 // Import Templates
 import Template1Menu from './restaurants/template1/Menu'; 
-import Template2Menu from './restaurants/template2/Menu'; // <--- Import the new one
+import Template2Menu from './restaurants/template2/Menu'; 
+import Template3Menu from './restaurants/template3/Menu'; // <--- New Cafe Template
 
 function App() {
   return (
@@ -16,11 +17,14 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/admin" element={<Admin />} />
 
-        {/* Existing Template */}
+        {/* Template 1: Modern & Playful */}
         <Route path="/template1" element={<Template1Menu />} />
 
-        {/* New Luxury Template */}
+        {/* Template 2: Luxury Fine Dining */}
         <Route path="/template2" element={<Template2Menu />} />
+
+        {/* Template 3: Cozy Coffee House */}
+        <Route path="/template3" element={<Template3Menu />} />
 
       </Routes>
     </BrowserRouter>
