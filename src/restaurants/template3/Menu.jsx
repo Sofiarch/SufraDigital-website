@@ -78,7 +78,8 @@ const Template3Menu = () => {
      return () => clearTimeout(timer);
   }, [activeCat, activeSubCat]); 
 
-  useEffect(() => { setActiveSubCat('ALL'); }, [activeCat]);
+  // FIX: Removed the useEffect that delayed the reset of activeSubCat
+  // useEffect(() => { setActiveSubCat('ALL'); }, [activeCat]); <--- REMOVED
 
   // --- FILTER ---
   const visibleSubcategories = searchQuery ? [] : subcategories.filter(sub => sub.category_id === activeCat);
@@ -110,16 +111,11 @@ const Template3Menu = () => {
       className={`min-h-screen font-sans pb-0 flex flex-col transition-colors duration-500 relative`}
     >
       {/* BACKGROUND LAYERS */}
-      {/* 1. Base Color */}
       <div className={`fixed inset-0 z-[-1] transition-colors duration-700 ${isDark ? 'bg-[#1E1B18]' : 'bg-[#F5F2EA]'}`} />
-      
-      {/* 2. Texture Image (Fixed) */}
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-700 opacity-30"
         style={{ backgroundImage: `url(${isDark ? BG_DARK_TEXTURE : BG_LIGHT_TEXTURE})` }}
       />
-      
-      {/* 3. Tint Overlay */}
       <div className={`fixed inset-0 z-0 ${isDark ? 'bg-black/30' : 'bg-[#6F4E37]/5'} backdrop-blur-[1px]`} />
 
       <style>{`
@@ -166,7 +162,11 @@ const Template3Menu = () => {
                         return (
                             <button 
                                 key={cat.id} 
-                                onClick={() => setActiveCat(cat.id)}
+                                onClick={() => {
+                                    // FIX: Synchronously reset subcategory to avoid empty state flash
+                                    setActiveCat(cat.id);
+                                    setActiveSubCat('ALL');
+                                }}
                                 className={`shrink-0 relative pb-2 text-sm font-bold transition-colors duration-300
                                     ${isActive 
                                         ? (isDark ? 'text-[#D7CCC8]' : 'text-[#6F4E37]') 
@@ -338,7 +338,7 @@ const Template3Menu = () => {
         )}
       </div>
 
-      {/* FOOTER - Updated with distinct background and z-index to fix "burning" issue */}
+      {/* FOOTER */}
       <div className={`relative z-20 mt-auto border-t backdrop-blur-xl 
           ${isDark ? 'border-white/5 bg-[#1E1B18]/90' : 'border-[#6F4E37]/10 bg-[#F5F2EA]/90'}`}>
           <Footer isDark={isDark} lang={lang} />
