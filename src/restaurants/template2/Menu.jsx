@@ -38,9 +38,9 @@ const Template2Menu = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Default: Arabic & Dark Mode
+  // Default: Arabic & Light Mode (Changed from true to false)
   const [lang, setLang] = useState('ar'); 
-  const [isDark, setIsDark] = useState(true); 
+  const [isDark, setIsDark] = useState(false); // <--- DEFAULT IS NOW LIGHT MODE
 
   const toggleTheme = () => setIsDark(!isDark);
   const toggleLang = () => setLang(prev => prev === 'en' ? 'ar' : 'en');
