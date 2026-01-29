@@ -1,23 +1,33 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 
 const BlurImage = ({ src, alt, className, ...props }) => {
   const [isLoading, setLoading] = useState(true);
+  const [currentSrc, setCurrentSrc] = useState(src);
+
+  // Reset loading state if src changes
+  useEffect(() => {
+    setLoading(true);
+    setCurrentSrc(src);
+  }, [src]);
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
-      {isLoading && <div className="absolute inset-0 bg-gray-200 animate-pulse z-10" />}
-      <motion.img
-        src={src}
+    <div className={`relative overflow-hidden ${className} bg-gray-100`}>
+      <img
+        src={currentSrc}
         alt={alt}
-        initial={{ opacity: 0, scale: 1.05 }}
-        animate={{ opacity: isLoading ? 0 : 1, scale: isLoading ? 1.05 : 1 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
         onLoad={() => setLoading(false)}
-        className={`w-full h-full object-cover transition-all duration-700 ${isLoading ? 'grayscale blur-lg' : 'grayscale-0 blur-0'}`}
+        className={`
+          w-full h-full object-cover 
+          transition-all duration-700 ease-out
+          ${isLoading 
+            ? 'scale-110 blur-lg grayscale opacity-0' // Start state
+            : 'scale-100 blur-0 grayscale-0 opacity-100' // End state
+          }
+        `}
         {...props}
       />
     </div>
   );
 };
+
 export default BlurImage;
