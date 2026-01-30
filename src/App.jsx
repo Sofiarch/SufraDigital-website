@@ -25,7 +25,6 @@ function App() {
 
         {/* Template 3: Cozy Coffee House */}
         <Route path="/template3" element={<Template3Menu />} />
-
       </Routes>
     </BrowserRouter>
   );
