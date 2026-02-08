@@ -72,25 +72,23 @@ const Template4Menu = () => {
 
   const colors = isDark ? THEME.dark : THEME.light;
 
-  // --- SCROLL LOCK FIX ---
+  // --- SCROLL LOCK FIX (UPDATED) ---
   // Prevents pull-to-refresh / rubber-banding on mobile while loading
   useEffect(() => {
     if (welcomeVisible) {
+        // Lock body and html to prevent "white rectangle" rubber banding
         document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.width = '100%';
-        document.body.style.height = '100%';
+        document.body.style.overscrollBehavior = 'none';
+        document.documentElement.style.overscrollBehavior = 'none';
     } else {
         document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.width = '';
-        document.body.style.height = '';
+        document.body.style.overscrollBehavior = '';
+        document.documentElement.style.overscrollBehavior = '';
     }
     return () => {
         document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.width = '';
-        document.body.style.height = '';
+        document.body.style.overscrollBehavior = '';
+        document.documentElement.style.overscrollBehavior = '';
     };
   }, [welcomeVisible]);
 
@@ -168,8 +166,8 @@ const Template4Menu = () => {
   });
 
   return (
-    // "overscroll-none" helps prevent the browser bounce effect on mobile
-    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className={`min-h-screen font-serif overflow-x-hidden relative transition-colors duration-700 overscroll-none`} style={{ color: colors.text }}>
+    // 'touch-action-pan-y' allows vertical scroll but prevents horizontal swipes from triggering browser nav
+    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className={`min-h-screen font-serif overflow-x-hidden relative transition-colors duration-700 overscroll-none touch-pan-y`} style={{ color: colors.text }}>
       
       {/* BACKGROUND PARTICLES */}
       <div className="fixed inset-0 -z-50 overflow-hidden transition-colors duration-700" style={{ backgroundColor: colors.bg }}>
@@ -190,10 +188,10 @@ const Template4Menu = () => {
         </div>
       </div>
 
-      {/* LOADER - High Z-Index */}
+      {/* LOADER - High Z-Index & Touch Action None */}
       <AnimatePresence>
         {welcomeVisible && (
-            <div className="relative z-[9999]"> 
+            <div className="relative z-[9999]" style={{ touchAction: 'none' }}> 
                 <IraqiLoader 
                     isDark={isDark} 
                     isLoading={loading} 
@@ -235,7 +233,7 @@ const Template4Menu = () => {
                      )}
                  </div>
 
-                 {/* CENTER: Placeholder (Empty because Logo is below) */}
+                 {/* CENTER: Placeholder */}
                  <div className="w-1/3" />
 
                  {/* RIGHT: Settings & Search */}
@@ -284,7 +282,6 @@ const Template4Menu = () => {
              </AnimatePresence>
 
              {/* ROW 3: LOGO (Centered & Transparent) */}
-             {/* Only show logo in Menu view or if you want it always visible. Here we show it always but bigger in menu view context for branding. */}
              <div 
                 className="flex justify-center items-center py-1 cursor-pointer"
                 onClick={handleGoHome}
@@ -301,7 +298,6 @@ const Template4Menu = () => {
              </div>
 
              {/* ROW 4: CATEGORY TABS (Only in Menu Mode) */}
-             {/* Sits naturally below the logo, preventing overlap */}
              <AnimatePresence>
                 {viewMode === 'menu' && (
                     <motion.div 
@@ -507,24 +503,29 @@ const Template4Menu = () => {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.4 }}
                 >
-                    {/* Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4">
-                        <AnimatePresence>
-                            {filteredItems.map(item => (
-                                <MenuCard 
-                                    key={item.id}
-                                    item={item}
-                                    cart={cart}
-                                    onUpdateCart={handleItemUpdate}
-                                    currency={lang === 'en' ? 'IQD' : 'د.ع'}
-                                    isDark={isDark}
-                                    accentColor={colors.accent}
-                                    lang={lang}
-                                    onImageClick={setSelectedItem}
-                                />
-                            ))}
-                        </AnimatePresence>
-                    </div>
+                    {/* FIXED: Wraps grid in motion.div with unique Key to prevent Jolt */}
+                    <motion.div 
+                        key={activeCat} // <--- Key makes it re-mount smoothly instead of morphing
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4"
+                    >
+                        {filteredItems.map(item => (
+                            <MenuCard 
+                                key={item.id}
+                                item={item}
+                                cart={cart}
+                                onUpdateCart={handleItemUpdate}
+                                currency={lang === 'en' ? 'IQD' : 'د.ع'}
+                                isDark={isDark}
+                                accentColor={colors.accent}
+                                lang={lang}
+                                onImageClick={setSelectedItem}
+                            />
+                        ))}
+                    </motion.div>
                     
                     {filteredItems.length === 0 && (
                         <div className="text-center py-20 opacity-50 font-bold">
