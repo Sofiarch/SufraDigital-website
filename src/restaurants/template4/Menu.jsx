@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Search, Moon, Sun, ChevronLeft, Menu as MenuIcon, X } from 'lucide-react'; 
+import { Search, Moon, Sun, ChevronLeft, Menu as MenuIcon, X, UtensilsCrossed } from 'lucide-react'; 
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- COMPONENTS ---
@@ -71,6 +71,28 @@ const Template4Menu = () => {
   }, [isDarkState]);
 
   const colors = isDark ? THEME.dark : THEME.light;
+
+  // --- SCROLL LOCK FIX ---
+  // Prevents pull-to-refresh / rubber-banding on mobile while loading
+  useEffect(() => {
+    if (welcomeVisible) {
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+    } else {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
+    }
+    return () => {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
+    };
+  }, [welcomeVisible]);
 
   // --- DATA FETCHING ---
   useEffect(() => {
@@ -146,7 +168,8 @@ const Template4Menu = () => {
   });
 
   return (
-    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className={`min-h-screen font-serif overflow-x-hidden relative transition-colors duration-700`} style={{ color: colors.text }}>
+    // "overscroll-none" helps prevent the browser bounce effect on mobile
+    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className={`min-h-screen font-serif overflow-x-hidden relative transition-colors duration-700 overscroll-none`} style={{ color: colors.text }}>
       
       {/* BACKGROUND PARTICLES */}
       <div className="fixed inset-0 -z-50 overflow-hidden transition-colors duration-700" style={{ backgroundColor: colors.bg }}>
@@ -183,7 +206,7 @@ const Template4Menu = () => {
       </AnimatePresence>
 
       {/* =========================================================
-          🏰 GRID LAYOUT HEADER (FIXED NO OVERLAP)
+          🏰 HEADER (VERTICAL STACK LAYOUT)
       ========================================================= */}
       <header className="sticky top-0 z-40 transition-colors duration-500 backdrop-blur-xl border-b shadow-sm" 
         style={{ 
@@ -191,156 +214,161 @@ const Template4Menu = () => {
             borderColor: colors.accent
         }}>
          
-         {/* TOP ROW: Grid Layout (Left - Center - Right) */}
-         <div className="max-w-7xl mx-auto px-4 py-3 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+         {/* CONTAINER: Flex Column to Stack Elements */}
+         <div className="max-w-7xl mx-auto flex flex-col w-full">
              
-             {/* 1. LEFT: Navigation */}
-             <div className="flex items-center justify-start gap-2">
-                 {viewMode === 'menu' ? (
-                     <button 
-                        onClick={handleGoHome}
-                        className="w-10 h-10 rounded-full flex items-center justify-center border transition-all hover:scale-110 active:scale-95 bg-black/5"
-                        style={{ borderColor: colors.accent, color: colors.text }}
-                     >
-                        <ChevronLeft size={24} className={lang === 'ar' ? 'rotate-180' : ''} />
+             {/* ROW 1: CONTROLS (Back / Settings) */}
+             <div className="flex justify-between items-center px-4 py-2 w-full h-14 relative z-20">
+                 
+                 {/* LEFT: Back Button */}
+                 <div className="flex items-center w-1/3">
+                     {viewMode === 'menu' ? (
+                         <button 
+                            onClick={handleGoHome}
+                            className="w-10 h-10 rounded-full flex items-center justify-center border transition-all hover:scale-110 active:scale-95 bg-black/5"
+                            style={{ borderColor: colors.accent, color: colors.text }}
+                         >
+                            <ChevronLeft size={24} className={lang === 'ar' ? 'rotate-180' : ''} />
+                         </button>
+                     ) : (
+                        <div className="w-10 h-10" />
+                     )}
+                 </div>
+
+                 {/* CENTER: Placeholder (Empty because Logo is below) */}
+                 <div className="w-1/3" />
+
+                 {/* RIGHT: Settings & Search */}
+                 <div className="flex items-center justify-end gap-2 w-1/3">
+                     {viewMode === 'menu' && (
+                        <button 
+                            onClick={() => setIsSearchOpen(!isSearchOpen)}
+                            className="w-10 h-10 flex items-center justify-center rounded-full border transition-all active:scale-95 hover:bg-black/5"
+                            style={{ borderColor: colors.accent, color: colors.text }}
+                        >
+                            {isSearchOpen ? <X size={20} /> : <Search size={20} />}
+                        </button>
+                     )}
+                     <button onClick={() => setIsDarkState(!isDarkState)} className="w-10 h-10 flex items-center justify-center rounded-full border transition-all hover:scale-110 active:scale-95" style={{ borderColor: colors.accent, color: colors.accent }}>
+                        {isDark ? <Sun size={20} /> : <Moon size={20} />}
                      </button>
-                 ) : (
-                    <div className="w-10 h-10" /> // Spacer
-                 )}
+                     <button onClick={() => setLang(l => l === 'en' ? 'ar' : 'en')} className="w-10 h-10 flex items-center justify-center rounded-full border font-bold text-xs transition-all hover:scale-110 active:scale-95" style={{ borderColor: colors.accent, color: colors.accent }}>
+                        {lang === 'en' ? 'ع' : 'En'}
+                     </button>
+                 </div>
              </div>
 
-             {/* 2. CENTER: LOGO (Natural Flow - No Overlap) */}
+             {/* ROW 2: SEARCH (Mobile - Collapsible) */}
+             <AnimatePresence>
+                {isSearchOpen && viewMode === 'menu' && (
+                    <motion.div 
+                        initial={{ height: 0, opacity: 0 }} 
+                        animate={{ height: 'auto', opacity: 1 }} 
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden px-4 pb-2"
+                    >
+                        <div className="relative w-full">
+                            <input 
+                                type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full h-10 rounded-xl pl-10 pr-4 focus:outline-none border shadow-inner bg-transparent"
+                                style={{ borderColor: colors.accent, color: colors.text, backgroundColor: isDark ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.5)' }}
+                                placeholder={lang === 'en' ? 'Search items...' : 'ابحث عن صنف...'}
+                                autoFocus
+                            />
+                            <div className="absolute inset-y-0 left-0 flex items-center justify-center w-10 pointer-events-none">
+                                <Search size={20} style={{ color: colors.accent }} />
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+             </AnimatePresence>
+
+             {/* ROW 3: LOGO (Centered & Transparent) */}
+             {/* Only show logo in Menu view or if you want it always visible. Here we show it always but bigger in menu view context for branding. */}
              <div 
-                className="flex items-center justify-center cursor-pointer group"
+                className="flex justify-center items-center py-1 cursor-pointer"
                 onClick={handleGoHome}
              >
-                <motion.div 
-                    initial={{ scale: 0.9 }}
-                    animate={{ scale: 1 }}
+                <motion.img 
+                    src={Logo} 
+                    alt="Logo" 
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
                     whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    // Explicit Size: 80px (w-20)
-                    className="w-24 h-24 rounded-full bg-white shadow-lg border-2 overflow-hidden p-2 flex items-center justify-center"
-                    style={{ borderColor: colors.accent }}
-                >
-                    <img src={Logo} alt="Logo" className="w-full h-full object-contain scale-110" />
-                </motion.div>
+                    // Increased size: w-32 (128px), no background container
+                    className="w-32 h-auto object-contain drop-shadow-2xl"
+                />
              </div>
 
-             {/* 3. RIGHT: Controls */}
-             <div className="flex items-center justify-end gap-2">
-                 
-                 {/* Search Toggle (Menu Mode Only) */}
-                 {viewMode === 'menu' && (
-                    <button 
-                        onClick={() => setIsSearchOpen(!isSearchOpen)}
-                        className="w-10 h-10 flex items-center justify-center rounded-full border transition-all active:scale-95 hover:bg-black/5"
-                        style={{ borderColor: colors.accent, color: colors.text }}
+             {/* ROW 4: CATEGORY TABS (Only in Menu Mode) */}
+             {/* Sits naturally below the logo, preventing overlap */}
+             <AnimatePresence>
+                {viewMode === 'menu' && (
+                    <motion.div 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden w-full"
                     >
-                        {isSearchOpen ? <X size={20} /> : <Search size={20} />}
-                    </button>
-                 )}
-
-                 {/* Theme Toggle */}
-                 <button onClick={() => setIsDarkState(!isDarkState)} className="w-10 h-10 flex items-center justify-center rounded-full border transition-all hover:scale-110 active:scale-95" style={{ borderColor: colors.accent, color: colors.accent }}>
-                    {isDark ? <Sun size={20} /> : <Moon size={20} />}
-                 </button>
-                 
-                 {/* Lang Toggle */}
-                 <button onClick={() => setLang(l => l === 'en' ? 'ar' : 'en')} className="w-10 h-10 flex items-center justify-center rounded-full border font-bold text-xs transition-all hover:scale-110 active:scale-95" style={{ borderColor: colors.accent, color: colors.accent }}>
-                    {lang === 'en' ? 'ع' : 'En'}
-                 </button>
-             </div>
-         </div>
-
-         {/* MOBILE SEARCH BAR (Slide Down) */}
-         <AnimatePresence>
-            {isSearchOpen && viewMode === 'menu' && (
-                <motion.div 
-                    initial={{ height: 0, opacity: 0 }} 
-                    animate={{ height: 'auto', opacity: 1 }} 
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden px-4 pb-3"
-                >
-                    <div className="relative w-full">
-                        <input 
-                            type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-10 rounded-xl pl-10 pr-4 focus:outline-none border shadow-inner bg-transparent"
-                            style={{ borderColor: colors.accent, color: colors.text, backgroundColor: isDark ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.5)' }}
-                            placeholder={lang === 'en' ? 'Search items...' : 'ابحث عن صنف...'}
-                            autoFocus
-                        />
-                        <div className="absolute inset-y-0 left-0 flex items-center justify-center w-10 pointer-events-none">
-                            <Search size={18} style={{ color: colors.accent }} />
-                        </div>
-                    </div>
-                </motion.div>
-            )}
-         </AnimatePresence>
-
-         {/* BOTTOM ROW: Text Categories (Own Row - No Overlap) */}
-         <AnimatePresence>
-            {viewMode === 'menu' && (
-                <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden border-t"
-                    style={{ borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
-                >
-                    <div 
-                        className="flex overflow-x-auto no-scrollbar gap-2 px-4 py-3 md:justify-center items-center"
-                        style={{ 
-                            maskImage: 'linear-gradient(to right, transparent, black 10px, black 90%, transparent)',
-                            WebkitMaskImage: 'linear-gradient(to right, transparent, black 10px, black 90%, transparent)' 
-                        }}
-                    >
-                        <button 
-                            onClick={() => { setActiveCat('all'); setActiveSubCat('all'); }}
-                            className={`flex-shrink-0 px-5 py-2 rounded-full text-sm font-bold transition-all border whitespace-nowrap
-                                ${activeCat === 'all' ? 'shadow-md scale-105' : 'hover:bg-black/5 opacity-70'}
-                            `}
-                            style={{
-                                backgroundColor: activeCat === 'all' ? colors.primary : 'transparent',
-                                color: activeCat === 'all' ? (isDark ? '#000' : '#FFF') : colors.text,
-                                borderColor: activeCat === 'all' ? colors.primary : colors.border
+                        <div 
+                            className="flex overflow-x-auto no-scrollbar gap-2 px-4 pb-4 pt-2 md:justify-center items-center"
+                            style={{ 
+                                maskImage: 'linear-gradient(to right, transparent, black 10px, black 90%, transparent)',
+                                WebkitMaskImage: 'linear-gradient(to right, transparent, black 10px, black 90%, transparent)' 
                             }}
                         >
-                            {lang === 'en' ? 'All Menu' : 'كل القائمة'}
-                        </button>
-                        
-                        <div className="w-[1px] h-6 mx-1 opacity-20" style={{ backgroundColor: colors.text }}></div>
-                        
-                        {categories.map(cat => (
+                            {/* Spacer */}
+                            <div className="w-2 shrink-0 md:hidden"></div>
+
                             <button 
-                                key={cat.id}
-                                onClick={() => { setActiveCat(cat.id); setActiveSubCat('all'); }}
+                                onClick={() => { setActiveCat('all'); setActiveSubCat('all'); }}
                                 className={`flex-shrink-0 px-5 py-2 rounded-full text-sm font-bold transition-all border whitespace-nowrap
-                                    ${activeCat === cat.id ? 'shadow-md scale-105' : 'hover:bg-black/5 opacity-70'}
+                                    ${activeCat === 'all' ? 'shadow-md scale-105' : 'hover:bg-black/5 opacity-70'}
                                 `}
                                 style={{
-                                    backgroundColor: activeCat === cat.id ? colors.primary : 'transparent',
-                                    color: activeCat === cat.id ? (isDark ? '#000' : '#FFF') : colors.text,
-                                    borderColor: activeCat === cat.id ? colors.primary : colors.border
+                                    backgroundColor: activeCat === 'all' ? colors.primary : 'transparent',
+                                    color: activeCat === 'all' ? (isDark ? '#000' : '#FFF') : colors.text,
+                                    borderColor: activeCat === 'all' ? colors.primary : colors.border
                                 }}
                             >
-                                {lang === 'en' ? cat.name_en : cat.name_ar}
+                                {lang === 'en' ? 'All Menu' : 'كل القائمة'}
                             </button>
-                        ))}
-                    </div>
-                    
-                    {/* Subcategories (if any) */}
-                    {currentSubcats.length > 0 && (
-                        <div className="flex overflow-x-auto no-scrollbar gap-2 px-4 pb-2 border-t md:justify-center pt-2" style={{ borderColor: colors.border }}>
-                            <button onClick={() => setActiveSubCat('all')} className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-bold border transition-all ${activeSubCat === 'all' ? 'bg-black/10' : ''}`} style={{ borderColor: colors.border }}>{lang === 'en' ? 'All' : 'الكل'}</button>
-                            {currentSubcats.map(sub => (
-                                <button key={sub.id} onClick={() => setActiveSubCat(sub.id)} className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-bold border transition-all ${activeSubCat === sub.id ? 'bg-black/10' : ''}`} style={{ borderColor: colors.border }}>{lang === 'en' ? sub.name_en : sub.name_ar}</button>
+                            
+                            <div className="w-[1px] h-6 mx-1 opacity-20" style={{ backgroundColor: colors.text }}></div>
+                            
+                            {categories.map(cat => (
+                                <button 
+                                    key={cat.id}
+                                    onClick={() => { setActiveCat(cat.id); setActiveSubCat('all'); }}
+                                    className={`flex-shrink-0 px-5 py-2 rounded-full text-sm font-bold transition-all border whitespace-nowrap
+                                        ${activeCat === cat.id ? 'shadow-md scale-105' : 'hover:bg-black/5 opacity-70'}
+                                    `}
+                                    style={{
+                                        backgroundColor: activeCat === cat.id ? colors.primary : 'transparent',
+                                        color: activeCat === cat.id ? (isDark ? '#000' : '#FFF') : colors.text,
+                                        borderColor: activeCat === cat.id ? colors.primary : colors.border
+                                    }}
+                                >
+                                    {lang === 'en' ? cat.name_en : cat.name_ar}
+                                </button>
                             ))}
+                            
+                            <div className="w-2 shrink-0 md:hidden"></div>
                         </div>
-                    )}
-                </motion.div>
-            )}
-         </AnimatePresence>
+                        
+                        {/* Subcategories */}
+                        {currentSubcats.length > 0 && (
+                            <div className="flex overflow-x-auto no-scrollbar gap-2 px-4 pb-2 border-t md:justify-center pt-2" style={{ borderColor: colors.border }}>
+                                <button onClick={() => setActiveSubCat('all')} className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-bold border transition-all ${activeSubCat === 'all' ? 'bg-black/10' : ''}`} style={{ borderColor: colors.border }}>{lang === 'en' ? 'All' : 'الكل'}</button>
+                                {currentSubcats.map(sub => (
+                                    <button key={sub.id} onClick={() => setActiveSubCat(sub.id)} className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-bold border transition-all ${activeSubCat === sub.id ? 'bg-black/10' : ''}`} style={{ borderColor: colors.border }}>{lang === 'en' ? sub.name_en : sub.name_ar}</button>
+                                ))}
+                            </div>
+                        )}
+                    </motion.div>
+                )}
+             </AnimatePresence>
+         </div>
       </header>
 
       {/* --- MAIN CONTENT AREA --- */}
@@ -367,14 +395,11 @@ const Template4Menu = () => {
                         </p>
                     </div>
 
-                    {/* --- 3D CARD STACK --- */}
+                    {/* --- 3D CARD STACK (Optimized) --- */}
                     <div className="relative w-full max-w-sm h-[420px] md:h-[500px] flex items-center justify-center perspective-1000">
                         {categories.map((cat, index) => {
-                            // Calculate position relative to active card
                             const offset = index - cardIndex;
                             const isActive = index === cardIndex;
-                            
-                            // Only render cards close to active to save performance
                             if (Math.abs(offset) > 2) return null;
 
                             return (
@@ -383,21 +408,23 @@ const Template4Menu = () => {
                                     layout
                                     drag="x"
                                     dragConstraints={{ left: 0, right: 0 }}
+                                    // SENSITIVITY: 10px swipe threshold
                                     onDragEnd={(e, { offset, velocity }) => {
                                         const swipe = offset.x;
-                                        if (swipe < -50) handleSwipe('left');
-                                        else if (swipe > 50) handleSwipe('right');
+                                        if (swipe < -10) handleSwipe('left');
+                                        else if (swipe > 10) handleSwipe('right');
                                     }}
                                     animate={{
                                         scale: isActive ? 1 : 0.85,
-                                        x: offset * 40, // Horizontal stack offset
-                                        y: Math.abs(offset) * 10, // Slight curve
+                                        x: offset * 40, 
+                                        y: Math.abs(offset) * 10,
                                         zIndex: 100 - Math.abs(offset),
                                         rotateY: offset * -5,
                                         opacity: isActive ? 1 : 0.5,
                                         filter: isActive ? 'blur(0px)' : 'blur(2px) grayscale(50%)'
                                     }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                    // PHYSICS: Smoother spring
+                                    transition={{ type: "spring", stiffness: 200, damping: 25 }}
                                     onClick={() => isActive ? handleCategoryClick(cat.id) : setCardIndex(index)}
                                     className={`absolute w-[280px] sm:w-[320px] h-[380px] sm:h-[420px] rounded-[32px] overflow-hidden shadow-2xl border-4 cursor-pointer bg-black/50`}
                                     style={{ 
