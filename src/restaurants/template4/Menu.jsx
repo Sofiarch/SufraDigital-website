@@ -72,23 +72,28 @@ const Template4Menu = () => {
 
   const colors = isDark ? THEME.dark : THEME.light;
 
-  // --- SCROLL LOCK FIX (UPDATED) ---
-  // Prevents pull-to-refresh / rubber-banding on mobile while loading
+  // --- STRICT SCROLL LOCK (iOS/Safari Fix) ---
   useEffect(() => {
     if (welcomeVisible) {
-        // Lock body and html to prevent "white rectangle" rubber banding
+        // Force fixed position to prevent rubber-banding
+        document.body.style.position = 'fixed'; 
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
         document.body.style.overflow = 'hidden';
-        document.body.style.overscrollBehavior = 'none';
-        document.documentElement.style.overscrollBehavior = 'none';
+        document.documentElement.style.overflow = 'hidden';
     } else {
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
         document.body.style.overflow = '';
-        document.body.style.overscrollBehavior = '';
-        document.documentElement.style.overscrollBehavior = '';
+        document.documentElement.style.overflow = '';
     }
     return () => {
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
         document.body.style.overflow = '';
-        document.body.style.overscrollBehavior = '';
-        document.documentElement.style.overscrollBehavior = '';
+        document.documentElement.style.overflow = '';
     };
   }, [welcomeVisible]);
 
@@ -166,8 +171,8 @@ const Template4Menu = () => {
   });
 
   return (
-    // 'touch-action-pan-y' allows vertical scroll but prevents horizontal swipes from triggering browser nav
-    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className={`min-h-screen font-serif overflow-x-hidden relative transition-colors duration-700 overscroll-none touch-pan-y`} style={{ color: colors.text }}>
+    // min-h-[100dvh] ensures full height on mobile browsers without address bar jank
+    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className={`min-h-[100dvh] w-full overflow-x-hidden font-serif relative transition-colors duration-700`} style={{ color: colors.text }}>
       
       {/* BACKGROUND PARTICLES */}
       <div className="fixed inset-0 -z-50 overflow-hidden transition-colors duration-700" style={{ backgroundColor: colors.bg }}>
@@ -191,7 +196,7 @@ const Template4Menu = () => {
       {/* LOADER - High Z-Index & Touch Action None */}
       <AnimatePresence>
         {welcomeVisible && (
-            <div className="relative z-[9999]" style={{ touchAction: 'none' }}> 
+            <div className="fixed inset-0 z-[9999]" style={{ touchAction: 'none' }}> 
                 <IraqiLoader 
                     isDark={isDark} 
                     isLoading={loading} 
@@ -206,7 +211,7 @@ const Template4Menu = () => {
       {/* =========================================================
           🏰 HEADER (VERTICAL STACK LAYOUT)
       ========================================================= */}
-      <header className="sticky top-0 z-40 transition-colors duration-500 backdrop-blur-xl border-b shadow-sm" 
+      <header className="sticky top-0 z-40 transition-colors duration-500 backdrop-blur-xl border-b shadow-sm w-full" 
         style={{ 
             backgroundColor: isDark ? 'rgba(24, 24, 27, 0.98)' : 'rgba(253, 246, 227, 0.98)',
             borderColor: colors.accent
@@ -283,7 +288,7 @@ const Template4Menu = () => {
 
              {/* ROW 3: LOGO (Centered & Transparent) */}
              <div 
-                className="flex justify-center items-center py-1 cursor-pointer"
+                className="flex justify-center items-center py-1 cursor-pointer w-full"
                 onClick={handleGoHome}
              >
                 <motion.img 
@@ -292,8 +297,8 @@ const Template4Menu = () => {
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     whileHover={{ scale: 1.05 }}
-                    // Increased size: w-32 (128px), no background container
-                    className="w-32 h-auto object-contain drop-shadow-2xl"
+                    // Sizing adjusted to fit nicely between rows
+                    className="w-28 md:w-32 h-auto object-contain drop-shadow-2xl"
                 />
              </div>
 
@@ -307,7 +312,7 @@ const Template4Menu = () => {
                         className="overflow-hidden w-full"
                     >
                         <div 
-                            className="flex overflow-x-auto no-scrollbar gap-2 px-4 pb-4 pt-2 md:justify-center items-center"
+                            className="flex overflow-x-auto no-scrollbar gap-2 px-4 pb-4 pt-2 md:justify-center items-center w-full"
                             style={{ 
                                 maskImage: 'linear-gradient(to right, transparent, black 10px, black 90%, transparent)',
                                 WebkitMaskImage: 'linear-gradient(to right, transparent, black 10px, black 90%, transparent)' 
@@ -354,7 +359,7 @@ const Template4Menu = () => {
                         
                         {/* Subcategories */}
                         {currentSubcats.length > 0 && (
-                            <div className="flex overflow-x-auto no-scrollbar gap-2 px-4 pb-2 border-t md:justify-center pt-2" style={{ borderColor: colors.border }}>
+                            <div className="flex overflow-x-auto no-scrollbar gap-2 px-4 pb-2 border-t md:justify-center pt-2 w-full" style={{ borderColor: colors.border }}>
                                 <button onClick={() => setActiveSubCat('all')} className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-bold border transition-all ${activeSubCat === 'all' ? 'bg-black/10' : ''}`} style={{ borderColor: colors.border }}>{lang === 'en' ? 'All' : 'الكل'}</button>
                                 {currentSubcats.map(sub => (
                                     <button key={sub.id} onClick={() => setActiveSubCat(sub.id)} className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-bold border transition-all ${activeSubCat === sub.id ? 'bg-black/10' : ''}`} style={{ borderColor: colors.border }}>{lang === 'en' ? sub.name_en : sub.name_ar}</button>
@@ -368,7 +373,7 @@ const Template4Menu = () => {
       </header>
 
       {/* --- MAIN CONTENT AREA --- */}
-      <main className="max-w-7xl mx-auto px-4 py-6 pb-32 relative min-h-[80vh] flex flex-col justify-center">
+      <main className="max-w-7xl mx-auto px-4 py-6 pb-32 relative min-h-[80dvh] flex flex-col justify-start">
          
          {/* VIEW 1: 3D STACKED GALLERY (HOME) */}
          <AnimatePresence mode="wait">
@@ -379,7 +384,7 @@ const Template4Menu = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="flex flex-col items-center justify-center w-full"
+                    className="flex flex-col items-center justify-center w-full mt-4"
                 >
                     {/* Hero Text */}
                     <div className="text-center mb-8 mt-4">
@@ -391,8 +396,12 @@ const Template4Menu = () => {
                         </p>
                     </div>
 
-                    {/* --- 3D CARD STACK (Optimized) --- */}
-                    <div className="relative w-full max-w-sm h-[420px] md:h-[500px] flex items-center justify-center perspective-1000">
+                    {/* --- 3D CARD STACK (Responsive Fixed Heights) --- */}
+                    <div 
+                        className="relative w-full flex items-center justify-center perspective-1000" 
+                        // Heights: 360px on Mobile, 460px on Desktop
+                        style={{ height: 'auto', minHeight: '360px' }}
+                    >
                         {categories.map((cat, index) => {
                             const offset = index - cardIndex;
                             const isActive = index === cardIndex;
@@ -404,7 +413,6 @@ const Template4Menu = () => {
                                     layout
                                     drag="x"
                                     dragConstraints={{ left: 0, right: 0 }}
-                                    // SENSITIVITY: 10px swipe threshold
                                     onDragEnd={(e, { offset, velocity }) => {
                                         const swipe = offset.x;
                                         if (swipe < -10) handleSwipe('left');
@@ -412,17 +420,17 @@ const Template4Menu = () => {
                                     }}
                                     animate={{
                                         scale: isActive ? 1 : 0.85,
-                                        x: offset * 40, 
+                                        x: offset * 25, // Tighter stack for mobile (was 30)
                                         y: Math.abs(offset) * 10,
                                         zIndex: 100 - Math.abs(offset),
                                         rotateY: offset * -5,
                                         opacity: isActive ? 1 : 0.5,
                                         filter: isActive ? 'blur(0px)' : 'blur(2px) grayscale(50%)'
                                     }}
-                                    // PHYSICS: Smoother spring
                                     transition={{ type: "spring", stiffness: 200, damping: 25 }}
                                     onClick={() => isActive ? handleCategoryClick(cat.id) : setCardIndex(index)}
-                                    className={`absolute w-[280px] sm:w-[320px] h-[380px] sm:h-[420px] rounded-[32px] overflow-hidden shadow-2xl border-4 cursor-pointer bg-black/50`}
+                                    // RESIZED FOR MOBILE: 260px width, 350px height
+                                    className={`absolute w-[260px] sm:w-[320px] h-[350px] sm:h-[450px] rounded-[32px] overflow-hidden shadow-2xl border-4 cursor-pointer bg-black/50`}
                                     style={{ 
                                         borderColor: isActive ? colors.accent : colors.border,
                                         boxShadow: isActive ? `0 20px 50px -10px ${colors.accent}40` : 'none'
@@ -497,35 +505,30 @@ const Template4Menu = () => {
             {/* VIEW 2: MENU GRID (ACTIVE) */}
             {viewMode === 'menu' && (
                 <motion.div 
-                    key="menu"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    key={activeCat} // Re-render animation on category change
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.4 }}
                 >
-                    {/* FIXED: Wraps grid in motion.div with unique Key to prevent Jolt */}
-                    <motion.div 
-                        key={activeCat} // <--- Key makes it re-mount smoothly instead of morphing
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4"
-                    >
-                        {filteredItems.map(item => (
-                            <MenuCard 
-                                key={item.id}
-                                item={item}
-                                cart={cart}
-                                onUpdateCart={handleItemUpdate}
-                                currency={lang === 'en' ? 'IQD' : 'د.ع'}
-                                isDark={isDark}
-                                accentColor={colors.accent}
-                                lang={lang}
-                                onImageClick={setSelectedItem}
-                            />
-                        ))}
-                    </motion.div>
+                    {/* Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4 pb-20 px-1">
+                        <AnimatePresence>
+                            {filteredItems.map(item => (
+                                <MenuCard 
+                                    key={item.id}
+                                    item={item}
+                                    cart={cart}
+                                    onUpdateCart={handleItemUpdate}
+                                    currency={lang === 'en' ? 'IQD' : 'د.ع'}
+                                    isDark={isDark}
+                                    accentColor={colors.accent}
+                                    lang={lang}
+                                    onImageClick={setSelectedItem}
+                                />
+                            ))}
+                        </AnimatePresence>
+                    </div>
                     
                     {filteredItems.length === 0 && (
                         <div className="text-center py-20 opacity-50 font-bold">
