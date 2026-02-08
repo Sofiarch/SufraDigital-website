@@ -37,10 +37,11 @@ const AdminPanel = ({ restaurant, onLogout }) => {
   const [editingItem, setEditingItem] = useState(null);
   const [newItem, setNewItem] = useState({ name_en: '', name_ar: '', desc_en: '', desc_ar: '', price: '', image_url: '', category_id: '', subcategory_id: '', is_available: true });
   
-  const [newCat, setNewCat] = useState({ en: '', ar: '', order: '' });
+  // Updated Category State to include image
+  const [newCat, setNewCat] = useState({ en: '', ar: '', order: '', image: '' });
   const [newSub, setNewSub] = useState({ catId: '', en: '', ar: '', image: '' });
   const [editingCatId, setEditingCatId] = useState(null);
-  const [editCatData, setEditCatData] = useState({ en: '', ar: '', order: '' });
+  const [editCatData, setEditCatData] = useState({ en: '', ar: '', order: '', image: '' });
 
   useEffect(() => {
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -66,6 +67,7 @@ const AdminPanel = ({ restaurant, onLogout }) => {
     setMenuItems(data || []);
   }
 
+  // Generic Image Compressor
   const compressImage = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -89,6 +91,7 @@ const AdminPanel = ({ restaurant, onLogout }) => {
     });
   };
 
+  // 1. Item Image Upload
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -100,6 +103,35 @@ const AdminPanel = ({ restaurant, onLogout }) => {
     }
   };
 
+  // 2. Category Image Upload
+  const handleCatImageUpload = async (e, isEdit = false) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const url = await compressImage(file);
+        if (isEdit) {
+            setEditCatData(prev => ({ ...prev, image: url }));
+        } else {
+            setNewCat(prev => ({ ...prev, image: url }));
+        }
+        setToast({ message: 'Category Image Ready!', type: 'success' });
+      } catch (err) { setToast({ message: 'Image Error', type: 'error' }); }
+    }
+  };
+
+  // 3. Subcategory Image Upload
+  const handleSubImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const url = await compressImage(file);
+        setNewSub(prev => ({ ...prev, image: url }));
+        setToast({ message: 'Sub Image Ready!', type: 'success' });
+      } catch (err) { setToast({ message: 'Image Error', type: 'error' }); }
+    }
+  };
+
+  // --- ITEM LOGIC ---
   const handleSaveItem = async (e) => {
     e.preventDefault();
     if (!newItem.category_id) { setToast({ message: t[lang].selectMain, type: 'error' }); return; }
@@ -157,17 +189,29 @@ const AdminPanel = ({ restaurant, onLogout }) => {
     setToast({ message: 'Item Deleted', type: 'success' });
   };
 
+  // --- CATEGORY LOGIC ---
   const handleAddCategory = async () => {
     if (!newCat.en) return;
-    await supabase.from('categories').insert({ restaurant_id: restaurant.id, name_en: newCat.en, name_ar: newCat.ar, sort_order: newCat.order || 100 });
-    setNewCat({ en: '', ar: '', order: '' });
+    await supabase.from('categories').insert({ 
+        restaurant_id: restaurant.id, 
+        name_en: newCat.en, 
+        name_ar: newCat.ar, 
+        sort_order: newCat.order || 100,
+        image_url: newCat.image // <--- Added Image Save
+    });
+    setNewCat({ en: '', ar: '', order: '', image: '' });
     fetchCategories();
     setToast({ message: 'Category Added', type: 'success' });
   };
 
   const handleSaveEditCat = async () => {
     if(!editCatData.en) return;
-    await supabase.from('categories').update({ name_en: editCatData.en, name_ar: editCatData.ar, sort_order: editCatData.order }).eq('id', editingCatId);
+    await supabase.from('categories').update({ 
+        name_en: editCatData.en, 
+        name_ar: editCatData.ar, 
+        sort_order: editCatData.order,
+        image_url: editCatData.image // <--- Added Image Update
+    }).eq('id', editingCatId);
     setEditingCatId(null);
     fetchCategories();
     setToast({ message: 'Category Updated', type: 'success' });
@@ -180,6 +224,7 @@ const AdminPanel = ({ restaurant, onLogout }) => {
     setToast({ message: 'Category Deleted', type: 'success' });
   };
 
+  // --- SUB-CATEGORY LOGIC ---
   const handleAddSub = async (catId) => {
     if (!newSub.en || newSub.catId !== catId) return;
     await supabase.from('subcategories').insert({ category_id: catId, name_en: newSub.en, name_ar: newSub.ar, image_url: newSub.image });
@@ -231,6 +276,7 @@ const AdminPanel = ({ restaurant, onLogout }) => {
           {activeTab === 'items' && (
             <motion.div key="items" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-4 space-y-6 order-2 lg:order-1">
+                 {/* Item Form Code (Unchanged) */}
                  <div className={`p-6 md:p-8 rounded-[2rem] shadow-xl border sticky top-28 transition-colors ${bgCard} ${editingItem ? 'border-orange-500/30 ring-4 ring-orange-500/10' : borderMain}`}>
                     <div className="flex justify-between items-center mb-6"><h2 className="text-lg font-bold">{editingItem ? t[lang].editItem : t[lang].newItem}</h2></div>
                     <form onSubmit={handleSaveItem} className="space-y-4">
@@ -267,14 +313,9 @@ const AdminPanel = ({ restaurant, onLogout }) => {
                             <div className="flex justify-between items-start mb-1">
                               <h4 className={`font-bold truncate px-1 ${textMain}`}>{lang === 'en' ? item.name_en : item.name_ar}</h4>
                               <div className="flex items-center gap-2">
-                                <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-red-500/10 text-red-500">
-                                  <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                                  {item.likes || 0}
-                                </span>
                                 <span className="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded text-[10px] font-bold tracking-wide">{item.price}</span>
                               </div>
                             </div>
-                            <p className={`text-xs px-1 ${textMuted} truncate`}>{lang === 'en' ? item.description_en : item.description_ar}</p>
                             <div className="flex items-center gap-2 mt-3">
                               <button onClick={() => toggleAvailability(item)} className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors ${item.is_available ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20'}`}>{item.is_available ? <><EyeIcon /> {t[lang].available}</> : <><EyeOffIcon /> {t[lang].soldOut}</>}</button>
                               <div className="flex-1"></div>
@@ -288,7 +329,6 @@ const AdminPanel = ({ restaurant, onLogout }) => {
                       ))}
                     </div>
                  )}
-                 {!loading && filteredItems.length === 0 && <div className={`text-center py-20 rounded-3xl border border-dashed ${bgCard} ${borderMain} ${textMuted}`}>{t[lang].noItems}</div>}
               </div>
             </motion.div>
           )}
@@ -299,6 +339,13 @@ const AdminPanel = ({ restaurant, onLogout }) => {
                   <div className="w-16 space-y-1"><label className={`text-[10px] font-bold uppercase tracking-widest px-1 ${textMuted}`}>{t[lang].catOrder}</label><input type="number" value={newCat.order} onChange={e => setNewCat({...newCat, order: e.target.value})} className={inputClass} placeholder="#" /></div>
                   <div className="flex-1 space-y-1"><label className={`text-[10px] font-bold uppercase tracking-widest px-1 ${textMuted}`}>{t[lang].newCat}</label><input value={newCat.en} onChange={e => setNewCat({...newCat, en: e.target.value})} className={inputClass} placeholder="e.g. Breakfast" dir="ltr" /></div>
                   <div className="flex-1 space-y-1 text-right"><label className={`text-[10px] font-bold uppercase tracking-widest px-1 ${textMuted}`}>{t[lang].newCatAr}</label><input value={newCat.ar} onChange={e => setNewCat({...newCat, ar: e.target.value})} className={`${inputClass}`} placeholder="مثال: فطور" dir="rtl" /></div>
+                  
+                  {/* Category Image Upload Button */}
+                  <label className={`cursor-pointer p-3.5 rounded-xl border border-dashed transition-all hover:bg-gray-50 flex items-center justify-center ${newCat.image ? 'border-emerald-500 bg-emerald-50 text-emerald-500' : 'border-gray-300 text-gray-400'}`}>
+                    <input type="file" hidden onChange={(e) => handleCatImageUpload(e, false)} />
+                    <ImageIcon />
+                  </label>
+
                   <button onClick={handleAddCategory} className="bg-[#3c3728] text-white p-3.5 rounded-xl hover:scale-105 transition-transform"><PlusIcon /></button>
                </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -308,14 +355,28 @@ const AdminPanel = ({ restaurant, onLogout }) => {
                           {editingCatId === cat.id ? (
                             <div className="flex gap-2 flex-1 items-center">
                                 <input type="number" className={`${inputClass} w-16 p-2 text-sm`} value={editCatData.order} onChange={e => setEditCatData({...editCatData, order: e.target.value})} />
-                                <input className={`${inputClass} p-2 text-sm`} value={editCatData.en} onChange={editCatData.en = e.target.value} dir="ltr" />
-                                <input className={`${inputClass} p-2 text-sm`} value={editCatData.ar} onChange={editCatData.ar = e.target.value} dir="rtl" />
+                                <input className={`${inputClass} p-2 text-sm`} value={editCatData.en} onChange={e => setEditCatData({...editCatData, en: e.target.value})} dir="ltr" />
+                                <input className={`${inputClass} p-2 text-sm`} value={editCatData.ar} onChange={e => setEditCatData({...editCatData, ar: e.target.value})} dir="rtl" />
+                                
+                                {/* Edit Category Image */}
+                                <label className={`cursor-pointer p-2 rounded-lg border border-dashed ${editCatData.image ? 'text-emerald-500 border-emerald-500' : 'text-gray-400'}`}>
+                                    <input type="file" hidden onChange={(e) => handleCatImageUpload(e, true)} />
+                                    <ImageIcon />
+                                </label>
+
                                 <button onClick={handleSaveEditCat} className="text-emerald-500 bg-emerald-500/10 p-2 rounded-lg"><CheckIcon /></button>
                             </div>
                           ) : (
                             <>
-                                <div className="flex items-center gap-3"><span className={`text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full ${isDark ? 'bg-white/10 text-gray-400' : 'bg-black/5 text-gray-500'}`}>{cat.sort_order}</span><h3 className={`font-bold ${textMain}`}>{lang === 'en' ? cat.name_en : cat.name_ar}</h3></div>
-                                <div className="flex gap-1"><button onClick={() => { setEditingCatId(cat.id); setEditCatData({ en: cat.name_en, ar: cat.name_ar, order: cat.sort_order }) }} className={`p-2 rounded-lg ${textMuted} hover:bg-gray-100 hover:text-[#3c3728]`}><EditIcon /></button><button onClick={() => handleDeleteCategory(cat.id)} className={`p-2 rounded-lg ${textMuted} hover:bg-red-500/10 hover:text-red-500`}><TrashIcon /></button></div>
+                                <div className="flex items-center gap-3">
+                                    <span className={`text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full ${isDark ? 'bg-white/10 text-gray-400' : 'bg-black/5 text-gray-500'}`}>{cat.sort_order}</span>
+                                    
+                                    {/* Show Image if Exists */}
+                                    {cat.image_url && <div className="w-8 h-8 rounded-full overflow-hidden border"><img src={cat.image_url} className="w-full h-full object-cover" /></div>}
+                                    
+                                    <h3 className={`font-bold ${textMain}`}>{lang === 'en' ? cat.name_en : cat.name_ar}</h3>
+                                </div>
+                                <div className="flex gap-1"><button onClick={() => { setEditingCatId(cat.id); setEditCatData({ en: cat.name_en, ar: cat.name_ar, order: cat.sort_order, image: cat.image_url || '' }) }} className={`p-2 rounded-lg ${textMuted} hover:bg-gray-100 hover:text-[#3c3728]`}><EditIcon /></button><button onClick={() => handleDeleteCategory(cat.id)} className={`p-2 rounded-lg ${textMuted} hover:bg-red-500/10 hover:text-red-500`}><TrashIcon /></button></div>
                             </>
                           )}
                        </div>

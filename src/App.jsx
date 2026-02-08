@@ -7,7 +7,8 @@ import Admin from './pages/Admin';
 // Import Templates
 import Template1Menu from './restaurants/template1/Menu'; 
 import Template2Menu from './restaurants/template2/Menu'; 
-import Template3Menu from './restaurants/template3/Menu'; // <--- New Cafe Template
+import Template3Menu from './restaurants/template3/Menu'; 
+import Template4Menu from './restaurants/template4/Menu'; // <--- New Import
 
 function App() {
   return (
@@ -25,6 +26,10 @@ function App() {
 
         {/* Template 3: Cozy Coffee House */}
         <Route path="/template3" element={<Template3Menu />} />
+
+        {/* Template 4: Neon Cyber Kiosk */}
+        <Route path="/template4" element={<Template4Menu />} />
+
       </Routes>
     </BrowserRouter>
   );
